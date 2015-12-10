@@ -10,12 +10,19 @@ public class MoCapRigidBody
 	public Quaternion rotation;
 	public GameObject gameObject;
 
+	public delegate void UpdateHandler(MoCapRigidBody Rigidbody);
+	public static event UpdateHandler OnUpdate;
+
+	private List<GameObject> followerGameObjects;
+
 	public MoCapRigidBody(int i, Vector3 p, Quaternion r)
 	{
 		id = i;
 		position = p;
 		rotation = r;
 		gameObject = null;
+
+		followerGameObjects = new List<GameObject> ();
 	}
 
 	public void AttachObject(GameObject go)
@@ -27,10 +34,25 @@ public class MoCapRigidBody
 	{
 		position = p;
 		rotation = r;
+
 		if (gameObject) {
 			gameObject.transform.position = p;
 			gameObject.transform.rotation = r;
 		}
+
+		foreach(GameObject o in followerGameObjects){
+			o.transform.localPosition = p;
+			o.transform.localRotation = r;
+		}
+
+		// trigger clalback event so users can hook into it
+		OnUpdate (this);
+	}
+
+	// convenience mehtod; every follower game object automatically
+	// updates when this rigid body updates
+	public void addFollower(GameObject obj){
+		followerGameObjects.Add(obj);
 	}
 }
 
@@ -47,6 +69,10 @@ public class MoCapOscInterface : MonoBehaviour
 	private static List<OscMessage> oscMessageQueue;
 	public List<MoCapRigidBody> rigidbodies;
 
+	// events
+	public delegate void NewRigidBodyHandler(MoCapRigidBody rigidbody);
+	public static event NewRigidBodyHandler OnNewRigidBody;
+
 	~MoCapOscInterface()
     {
         if (oscHandler != null)
@@ -61,8 +87,6 @@ public class MoCapOscInterface : MonoBehaviour
 
 	void Start()
 	{
-		oscMessageQueue = new List<OscMessage> ();
-
 		UDPPacketIO udp = GetComponent<UDPPacketIO>();
 		udp.init(remoteIp, sendToPort, listenerPort);
 		
@@ -108,6 +132,7 @@ public class MoCapOscInterface : MonoBehaviour
 				MoCapRigidBody newBody = new MoCapRigidBody (id, position, rotation);
 				rigidbodies.Add (newBody);
 				newBody.AttachObject(Instantiate(prefab) as GameObject);
+				OnNewRigidBody(newBody);
 			}
 		}
 	}
@@ -124,6 +149,7 @@ public class MoCapOscInterface : MonoBehaviour
 		}
 
 		rigidbodies = new List<MoCapRigidBody>();
+		oscMessageQueue = new List<OscMessage> ();
     }
 
     void OnDisable()
