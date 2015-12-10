@@ -1,6 +1,4 @@
-##First test, this file is here for historical reasons, this was the first test in the mocap lab. It is working though.
-
-#Fancy console color
+#Fancy console colors
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -16,10 +14,12 @@ import json
 import OSC
 
 # =====OSC Connection=====
+# TODO: Add argument parser here
+port = 8080
 host = "localhost"
 send_address = '10.200.200.35', 8000
 
-# OSC basic client
+# initializing OSC basic client
 c = OSC.OSCClient()
 c.connect( send_address ) # set the address for all following messages
 
@@ -36,11 +36,12 @@ def sendBone(rigidbody):
     j = json.dumps(r)
     msg = OSC.OSCMessage()
     msg.setAddress("/bone") # set OSC address
-    msg.append(j)
+    msg.append(j) # int
     c.send(msg)
 
 # =========
 
+#Connecting to NatNet network
 try:
     import optirx as rx
     print bcolors.OKGREEN + "Libraries imported correctly" + bcolors.ENDC
@@ -48,6 +49,7 @@ except ImportException:
     print bcolors.FAIL + "Error importing library, please install optirx by running: sudo pip install optirx"+ bcolors.ENDC
 
 
+#TODO:Use the argument parser here as well. Encapsulate in NATNET class.
 if len(sys.argv) == 4:
     print bcolors.OKGREEN + "connecting to IP address %s / multicast address %s with port %s" % (sys.argv[1], sys.argv[2], sys.argv[3]) + bcolors.ENDC
     dsock = rx.mkdatasock(ip_address=sys.argv[1], multicast_address=sys.argv[2], port=int(sys.argv[3]))

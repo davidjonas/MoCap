@@ -1,3 +1,5 @@
+##First test, this file is here for historical reasons, this was the first test in the mocap lab. It is working though.
+
 #Fancy console color
 class bcolors:
     HEADER = '\033[95m'

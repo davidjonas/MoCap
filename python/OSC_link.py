@@ -1,0 +1,47 @@
+from terminal_colors import bcolors
+import sys
+import json
+import OSC
+
+class OSCLink(object):
+    """
+    OSC link to send translated MoCap data from NatNet
+    """
+
+    def __init__(self, host, port):
+        self.c = OSC.OSCClient()
+        self.send_address = (host, int(port))
+        self._connect()
+
+
+    def _connect(self):
+        c.connect(self.send_address )
+
+    def _sendMessage(self, tag, content):
+        msg = OSC.OSCMessage()
+        msg.setAddress(tag) # set OSC address
+        msg.append(content)
+        c.send(msg)
+
+    def sendRigibodyAsJSON(self, rigidbody):
+        r = {
+            'id':rigidbody.id,
+            'position':rigidbody.position,
+            'orientation':rigidbody.orientation,
+        }
+        j = json.dumps(r)
+        self._sendMessage("/rigidbody", j)
+
+    def sendRigidBody(self, prefix=None, rigidbody):
+        #position
+        self._sendMessage("/rb_%s_positionX"%prefix is not None and prefix or rigidbody.id, rigidbody.position[0]))
+        self._sendMessage("/rb_%s_positionY"%prefix is not None and prefix or rigidbody.id, rigidbody.position[1]))
+        self._sendMessage("/rb_%s_positionZ"%prefix is not None and prefix or rigidbody.id, rigidbody.position[2]))
+
+        #orientation
+        self._sendMessage("/rb_%s_orientationX"%prefix is not None and prefix or rigidbody.id, rigidbody.position[0]))
+        self._sendMessage("/rb_%s_orientationY"%prefix is not None and prefix or rigidbody.id, rigidbody.position[1]))
+        self._sendMessage("/rb_%s_orientationZ"%prefix is not None and prefix or rigidbody.id, rigidbody.position[2]))
+        self._sendMessage("/rb_%s_orientationW"%prefix is not None and prefix or rigidbody.id, rigidbody.position[3]))
+
+    
