@@ -27,8 +27,9 @@ class OSCLink(object):
         msg = OSC.OSCMessage()
         msg.setAddress(tag) # set OSC address
         msg.append(content)
-        print bcolors.OKGREEN + "Sending message:" + bcolors.ENDC
-        print msg
+        #TODO: This is debug code
+        #print bcolors.OKGREEN + "Sending message:" + bcolors.ENDC
+        #print msg
         self.c.send(msg)
 
     def sendRigibodyAsJSON(self, rigidbody):
