@@ -7,9 +7,8 @@ osc = OSCLink("127.0.0.1", 8080)
 
 def update():
     global natnet
-    rb = natnet.getRigidbody(0)
-    osc.sendRigibodyAsJSON(rb)
-    #print(rb.position[0])
+    for rb in natnet.rigidbodies:
+        osc.sendRigibodyAsJSON(rb)
 
 natnet.updated += update
 natnet.connect()
