@@ -21,13 +21,15 @@ class OSCLink(object):
 
 
     def _connect(self):
-        c.connect(self.send_address )
+        self.c.connect(self.send_address )
 
     def _sendMessage(self, tag, content):
         msg = OSC.OSCMessage()
         msg.setAddress(tag) # set OSC address
         msg.append(content)
-        c.send(msg)
+        print bcolors.OKGREEN + "Sending message:" + bcolors.ENDC
+        print msg
+        self.c.send(msg)
 
     def sendRigibodyAsJSON(self, rigidbody):
         r = {
@@ -38,14 +40,14 @@ class OSCLink(object):
         j = json.dumps(r)
         self._sendMessage("/rigidbody", j)
 
-    def sendRigidBody(self, prefix=None, rigidbody):
+    def sendRigidBody(self, rigidbody, prefix=None):
         #position
-        self._sendMessage("/rb_%s_positionX"%prefix is not None and prefix or rigidbody.id, rigidbody.position[0]))
-        self._sendMessage("/rb_%s_positionY"%prefix is not None and prefix or rigidbody.id, rigidbody.position[1]))
-        self._sendMessage("/rb_%s_positionZ"%prefix is not None and prefix or rigidbody.id, rigidbody.position[2]))
+        self._sendMessage("/rb_%s_positionX"%prefix is not None and prefix or rigidbody.id, rigidbody.position[0])
+        self._sendMessage("/rb_%s_positionY"%prefix is not None and prefix or rigidbody.id, rigidbody.position[1])
+        self._sendMessage("/rb_%s_positionZ"%prefix is not None and prefix or rigidbody.id, rigidbody.position[2])
 
         #orientation
-        self._sendMessage("/rb_%s_orientationX"%prefix is not None and prefix or rigidbody.id, rigidbody.position[0]))
-        self._sendMessage("/rb_%s_orientationY"%prefix is not None and prefix or rigidbody.id, rigidbody.position[1]))
-        self._sendMessage("/rb_%s_orientationZ"%prefix is not None and prefix or rigidbody.id, rigidbody.position[2]))
-        self._sendMessage("/rb_%s_orientationW"%prefix is not None and prefix or rigidbody.id, rigidbody.position[3]))
+        self._sendMessage("/rb_%s_orientationX"%prefix is not None and prefix or rigidbody.id, rigidbody.position[0])
+        self._sendMessage("/rb_%s_orientationY"%prefix is not None and prefix or rigidbody.id, rigidbody.position[1])
+        self._sendMessage("/rb_%s_orientationZ"%prefix is not None and prefix or rigidbody.id, rigidbody.position[2])
+        self._sendMessage("/rb_%s_orientationW"%prefix is not None and prefix or rigidbody.id, rigidbody.position[3])
