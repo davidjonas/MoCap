@@ -61,14 +61,14 @@ class NatNetParser(object):
         return len(self.rigidbodies)
 
     def getSkeleton(self, index):
-        if index > -1 and index < countSkeletons():
+        if index > -1 and index < self.countSkeletons():
             return skeletons[index]
         else:
             return None
 
     def getRigidbody(self, index):
-        if index > -1 and index < countRigidbodies():
-            return rigidbodies[index]
+        if index > -1 and index < self.countRigidbodies():
+            return self.rigidbodies[index]
         else:
             return None
 
@@ -82,9 +82,10 @@ class NatNetParser(object):
             self.updated()
 
     def parse(self, packet):
+        #import pdb; pdb.set_trace()
         self.skeletons = packet.skeletons
         self.rigidbodies = []
 
         for s in packet.skeletons:
-            for r in s.rigidbodies:
+            for r in s.rigid_bodies:
                 self.rigidbodies.append(r)
