@@ -1,7 +1,13 @@
 from terminal_colors import bcolors
 import sys
 import json
-import OSC
+try:
+    import OSC
+except ImportError:
+    print bcolors.FAIL + "Error importing library, please install pyOSC by running: sudo pip install pyOSC"+ bcolors.ENDC
+from event import Event
+
+
 
 class OSCLink(object):
     """
@@ -43,5 +49,3 @@ class OSCLink(object):
         self._sendMessage("/rb_%s_orientationY"%prefix is not None and prefix or rigidbody.id, rigidbody.position[1]))
         self._sendMessage("/rb_%s_orientationZ"%prefix is not None and prefix or rigidbody.id, rigidbody.position[2]))
         self._sendMessage("/rb_%s_orientationW"%prefix is not None and prefix or rigidbody.id, rigidbody.position[3]))
-
-    

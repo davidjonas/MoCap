@@ -31,6 +31,7 @@ class NatNetParser(object):
         return version
 
     def connect(self):
+        print(bcolors.OKBLUE + "Connecting to %s : %s" % (self.host, self.port) + bcolors.ENDC)
         try:
             if self.host is None:
                 self.dsock = rx.mkdatasock() #Connecting to localhost
@@ -41,6 +42,8 @@ class NatNetParser(object):
             self.connected = True
         except:
             self.connected = False
+            print(bcolors.FAIL +"There was an error connecting"+ bcolors.ENDC)
+            raise
 
         return self.connected
 
@@ -72,7 +75,7 @@ class NatNetParser(object):
     def run(self):
         while True:
             data = self.dsock.recv(rx.MAX_PACKETSIZE)
-            packet = rx.unpack(data, version=version)
+            packet = rx.unpack(data, version=self.version)
             if type(packet) is rx.SenderData:
                 setVersion(packet.natnet_version)
             self.parse(packet)
