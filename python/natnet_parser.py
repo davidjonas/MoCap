@@ -6,15 +6,17 @@ try:
 except ImportError:
     print bcolors.FAIL + "Error importing library, please install optirx by running: sudo pip install optirx"+ bcolors.ENDC
 from event import Event
+import threading
 
 
-class NatNetParser(object):
+class NatNetParser(threading.Thread):
     """
     NatNetParser class connects to a NatNet server, reads MoCap data,
     parses it and makes it available as python objects.
     """
 
     def __init__(self, host=None, multicast=None, port=None):
+        threading.Thread.__init__(self)
         self.host = host
         self.multicast = multicast
         self.port = int(port)
@@ -22,6 +24,7 @@ class NatNetParser(object):
         self.rigidbodies = []
         self.version = (2, 7, 0, 0)
         self.updated = Event()
+        self.connectionLost = Event()
         self.connected = False
 
     def setVersion(self, version):
@@ -50,6 +53,7 @@ class NatNetParser(object):
     def disconnect():
         self.dsock = None
         self.connected = False
+        self.connectionLost()
 
     def isConnected(self):
         return self.connected
@@ -74,12 +78,18 @@ class NatNetParser(object):
 
     def run(self):
         while True:
-            data = self.dsock.recv(rx.MAX_PACKETSIZE)
-            packet = rx.unpack(data, version=self.version)
-            if type(packet) is rx.SenderData:
-                setVersion(packet.natnet_version)
-            self.parse(packet)
-            self.updated()
+            try:
+                data = self.dsock.recv(rx.MAX_PACKETSIZE)
+                packet = rx.unpack(data, version=self.version)
+                if type(packet) is rx.SenderData:
+                    setVersion(packet.natnet_version)
+                self.parse(packet)
+                self.updated()
+            except:
+                print bcolors.FAIL + "Disconnected from server." + bcolors.ENDC
+                raise
+                self.disconnect()
+                break;
 
     def parse(self, packet):
         #import pdb; pdb.set_trace()

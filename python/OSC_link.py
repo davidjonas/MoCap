@@ -15,13 +15,17 @@ class OSCLink(object):
     """
 
     def __init__(self, host, port):
+        self.isConnected = False
         self.c = OSC.OSCClient()
         self.send_address = (host, int(port))
         self._connect()
 
-
     def _connect(self):
-        self.c.connect(self.send_address )
+        self.c.connect(self.send_address)
+        self.isConnected = True
+
+    def close(self):
+        self.c.close()
 
     def _sendMessage(self, tag, content):
         msg = OSC.OSCMessage()
