@@ -1,7 +1,7 @@
 from terminal_colors import bcolors
 import sys
 import json
-from event import Event
+# from event import Event
 from datetime import datetime
 
 class JSONLink:
