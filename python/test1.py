@@ -10,7 +10,7 @@ def update():
 if __name__ == "__main__":
 	natnet = NatNetParser(host="0.0.0.0", port="1511")
 	# osc = OSCLink("127.0.0.1", 8080)
-	osc = OSCLink("145.107.192.137", 8080)
+	osc = OSCLink("127.0.0.1", 8080)
 
 	natnet.updated += update
 	natnet.connect()

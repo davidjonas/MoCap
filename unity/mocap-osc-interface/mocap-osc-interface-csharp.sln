@@ -1,7 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2008
 
-Project("{57A6AED1-BD02-6017-75E0-758A99AD740E}") = "mocap-osc-interface", "Assembly-CSharp.csproj", "{80C57DCA-569F-1D30-4025-1AC3C41CD113}"
+Project("{57A6AED1-BD02-6017-75E0-758A99AD740E}") = "mocap-osc-interface", "Assembly-CSharp-vs.csproj", "{80C57DCA-569F-1D30-4025-1AC3C41CD113}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,7 +17,7 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-																																													GlobalSection(MonoDevelopProperties) = preSolution
+																													GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1
