@@ -97,7 +97,7 @@ if __name__ == "__main__":
 	filePath = sys.argv[1]		
 	player = JSONPlayer(path=filePath)
 
-	osc = OSCLink("145.107.192.137", 8080)
+	osc = OSCLink("127.0.0.1", 8080)
 	player.natnet.updated += updateOSC
 
 	player.start()
