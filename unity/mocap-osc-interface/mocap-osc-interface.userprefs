@@ -1,12 +1,10 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Poser.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Poser.cs">
     <Files>
-      <File FileName="Assets\MoCap-OSC\MoCapOscInterface.cs" Line="1" Column="1" />
-      <File FileName="Assets\Poser.cs" Line="49" Column="33" />
-      <File FileName="Assets\MoCap-OSC\MoCapRigidBodiesCloner.cs" Line="1" Column="1" />
-      <File FileName="Assets\MoCap-OSC\lib\Osc.cs" Line="1" Column="1" />
-      <File FileName="Assets\MoCap-OSC\lib\UDPPacketIO.cs" Line="1" Column="1" />
+      <File FileName="Assets/MoCap-OSC/MoCapOscInterface.cs" Line="132" Column="9" />
+      <File FileName="Assets/MoCap-OSC/MoCapRigidBodiesCloner.cs" Line="1" Column="1" />
+      <File FileName="Assets/Poser.cs" Line="78" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

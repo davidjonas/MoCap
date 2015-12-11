@@ -9,10 +9,7 @@ public class MoCapRigidBody
 	public Vector3 position;
 	public Quaternion rotation;
 	public GameObject gameObject;
-	
-	public delegate void UpdateHandler(MoCapRigidBody Rigidbody);
-	public static event UpdateHandler OnUpdate;
-	
+
 	private List<GameObject> followerGameObjects;
 	
 	public MoCapRigidBody(int i, Vector3 p, Quaternion r)
@@ -44,9 +41,6 @@ public class MoCapRigidBody
 			o.transform.localPosition = p;
 			o.transform.localRotation = r;
 		}
-		
-		// trigger clalback event so users can hook into it
-		//OnUpdate (this);
 	}
 	
 	// convenience mehtod; every follower game object automatically
@@ -76,7 +70,10 @@ public class MoCapOscInterface : MonoBehaviour
 	// events
 	public delegate void NewRigidBodyHandler(MoCapRigidBody rigidbody);
 	public static event NewRigidBodyHandler OnNewRigidBody;
-	
+
+	public delegate void UpdateRigidBodyHandler(MoCapRigidBody rigidbody);
+	public static event UpdateRigidBodyHandler OnRigidBodyUpdate;
+
 	~MoCapOscInterface()
 	{
 		if (oscHandler != null)
@@ -132,6 +129,7 @@ public class MoCapOscInterface : MonoBehaviour
 			foreach (MoCapRigidBody current in rigidbodies) {
 				if (current.id == id) {
 					current.Update (position, rotation);
+					// OnRigidBodyUpdate(current);
 					found = true;
 					break;
 				}
@@ -170,7 +168,7 @@ public class MoCapOscInterface : MonoBehaviour
 		oscHandler.Cancel();
 		oscHandler = null;
 	}
-	
+
 	private void onOscMessage(OscMessage m){
 		// put all osc messages in a queue which is processed in the update function;
 		// this function is called in a separate thread, it's safer better to process all messages in the main thread

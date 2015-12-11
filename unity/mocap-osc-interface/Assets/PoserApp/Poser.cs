@@ -3,6 +3,7 @@ using System.Collections;
 
 public class Poser : MonoBehaviour {
 
+	public GameObject body;
 	public KeyCode cloneKey=KeyCode.C;
 	public KeyCode deleteKey=KeyCode.D;
 	public Vector3 offset=new Vector3(-2, 0, 0);
@@ -11,7 +12,7 @@ public class Poser : MonoBehaviour {
 
 	private float tLastClone=0.0f;
 	private int cloneCount=0;
-	
+
 	// Use this for initialization
 	void Start () {
 
@@ -34,15 +35,17 @@ public class Poser : MonoBehaviour {
 	}
 
 	void makeClone(){
+		if (body == null) {
+			Debug.LogWarning ("no body GameObject specified");
+			return;
+		}
+
 		// make sure we've got a container GameObject
 		GameObject container = GameObject.Find ("clones");
 		if (container == null) {
 			container = new GameObject ();
 			container.name = "clones";
 		}
-
-		// find our mocap body
-		GameObject body = GameObject.Find ("MocapBody");
 
 		// create clone object
 		GameObject newClone = new GameObject ();

@@ -50,18 +50,12 @@
      <Compile Include="Assets\MoCap-OSC\lib\Osc.cs" />
      <Compile Include="Assets\MoCap-OSC\lib\SimpleJSON.cs" />
      <Compile Include="Assets\MoCap-OSC\lib\UDPPacketIO.cs" />
-     <Compile Include="Assets\Poser.cs" />
- <Reference Include="UnityEngine.Advertisements">
- <HintPath>/Volumes/1TB Seagate/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll</HintPath>
- </Reference>
+     <Compile Include="Assets\PoserApp\Poser.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Volumes/1TB Seagate/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Networking">
  <HintPath>/Volumes/1TB Seagate/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
- </Reference>
- <Reference Include="UnityEngine.Analytics">
- <HintPath>/Volumes/1TB Seagate/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.iOS.Extensions.Xcode">
  <HintPath>/Volumes/1TB Seagate/Applications/Unity/Unity.app/Contents/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
