@@ -17,34 +17,53 @@ class JSONPlayer:
 
 		# attributes
 		self.file = None
+		self.startTime = None
 
 		if self.natnet == None:
 			self.natnet = NatNetParser() # we'll just create our own, no need to connect anyway
 
 	def start(self):
 		self.file = open(self.path, 'r')
+		self.startTime = datetime.now()
 
 		while True:
+			# get next frame data
+			data = self._nextFrameData()
+
+			# if none, we've probably reached the end of the file, time to stop
+			if data == None:
+				self.stop()
+				return
+
+			# wait until it is time to play the frame
+			while ((datetime.now() - self.startTime).total_seconds() < data['t']):
+				pass
+
+			# 'play' the data
+			self._playFrame(data)
+
+	def _nextFrameData(self):
+		while True:
+			# read next line from the file
 			line = self.file.readline()
+
+			# return None when end-of-file is reached
 			if line == '':
-				break;
+				return None
 
-			self._playFrame(line)
-
-		self.stop()
+			# try to parse json
+			try:
+				data = json.loads(line)
+				return data
+			except (ValueError):
+				pass
 
 	def stop(self):
 		if self.file:
 			self.file.close()
 			self.file = None
 
-	def _playFrame(self, data_text):
-		#print("TODO: play: "+data)
-		try:
-			data = json.loads(data_text)
-		except (ValueError):
-			return # invalid line, could be a comment
-
+	def _playFrame(self, data):
 		self.natnet.rigidbodies = []
 
 		for b in data['rigidbodies']:
