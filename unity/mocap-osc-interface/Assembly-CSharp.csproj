@@ -45,12 +45,12 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\02-PoserApp\Poser.cs" />
      <Compile Include="Assets\MoCap-OSC\MoCapOscInterface.cs" />
      <Compile Include="Assets\MoCap-OSC\MoCapRigidBodiesCloner.cs" />
      <Compile Include="Assets\MoCap-OSC\lib\Osc.cs" />
      <Compile Include="Assets\MoCap-OSC\lib\SimpleJSON.cs" />
      <Compile Include="Assets\MoCap-OSC\lib\UDPPacketIO.cs" />
-     <Compile Include="Assets\PoserApp\Poser.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Volumes/1TB Seagate/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

@@ -28,19 +28,20 @@ public class Poser : MonoBehaviour {
 			removeClone ();
 		}
 
+		// auto-clone if clone delay is not zero
 		if (cloneDelay > 0.0f && Time.time - tLastClone > cloneDelay) {
 			makeClone ();
 		}
-
 	}
 
 	void makeClone(){
+		// we'll need a body object to clone from, abort if its missing
 		if (body == null) {
 			Debug.LogWarning ("no body GameObject specified");
 			return;
 		}
 
-		// make sure we've got a container GameObject
+		// find clones container object, create it if it's not there
 		GameObject container = GameObject.Find ("clones");
 		if (container == null) {
 			container = new GameObject ();
@@ -49,7 +50,7 @@ public class Poser : MonoBehaviour {
 
 		// create clone object
 		GameObject newClone = new GameObject ();
-		// clone all child objects (rigid bodies)
+		// clone all child objects (the rigid bodies)
 		foreach (Transform child in body.transform) {
 			GameObject clone = (GameObject)Instantiate (child.gameObject);
 			clone.transform.parent = newClone.transform;
@@ -67,23 +68,28 @@ public class Poser : MonoBehaviour {
 			child.localPosition = child.transform.localPosition + offset;
 		}
 
+		// auto-remove oldest clone if we've exceded the max. number of clones
 		if (maxClones > 0){
 			for (int i=container.transform.childCount; i>maxClones; i--) {
 				removeClone ();
 			}
 		}
 
+		// keep track of the time when the last clone was added;
+		// necessary to determine when we can make the next auto-clone
 		tLastClone = Time.time;
 	}
 
 	void removeClone(){
+		// find container, if it's not there, abort
 		GameObject container = GameObject.Find ("clones");
 		if (container == null)
 			return;
 
+		// simply remove the first (oldest) child/clone in the container
 		if (container.transform.childCount > 0) {
 			GameObject go = container.transform.GetChild (0).gameObject;
-			go.transform.parent = null;
+			go.transform.parent = null; // it seems like Destroy keeps them in memory somehow, so also orphan the object
 			Destroy (go);
 		}
 	}
