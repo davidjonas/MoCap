@@ -10,10 +10,11 @@ class RigidBodyClass:
 	pass
 
 class JSONPlayer:
-	def __init__(self, path=None, natnet=None):
+	def __init__(self, path=None, natnet=None, loop=True):
 		# params
 		self.path = path
 		self.natnet = natnet
+		self.loop = loop
 
 		# attributes
 		self.file = None
@@ -23,16 +24,21 @@ class JSONPlayer:
 			self.natnet = NatNetParser() # we'll just create our own, no need to connect anyway
 
 	def start(self):
-		self.file = open(self.path, 'r')
-		self.startTime = datetime.now()
+		playcount = 0
+		while playcount == 0 or self.loop == True:
+			self.file = open(self.path, 'r')
+			self.startTime = datetime.now()
+			self._play()
+			self.stop()
 
+	def _play(self):
 		while True:
 			# get next frame data
 			data = self._nextFrameData()
 
 			# if none, we've probably reached the end of the file, time to stop
 			if data == None:
-				self.stop()
+				
 				return
 
 			# wait until it is time to play the frame
@@ -85,7 +91,7 @@ def updateOSC():
 
 if __name__ == "__main__":
 	if len(sys.argv) < 2:
-		print("Please specify a source file")
+		print("Please specify a source file as first argument")
 		exit(1)
 	
 	filePath = sys.argv[1]		
