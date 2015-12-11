@@ -7,6 +7,7 @@ public class MoCapRigidBodiesCloner : MonoBehaviour {
 
 	private MoCapOscInterface mocap; // store local instance
 
+
 	// Use this for initialization
 	void Start () {
 		mocap = MoCapOscInterface.instance;
@@ -30,7 +31,7 @@ public class MoCapRigidBodiesCloner : MonoBehaviour {
 	}
 
 	private void createFollower(MoCapRigidBody rigidbody){
-		GameObject obj = Instantiate (prefab);
+		GameObject obj = (GameObject)Instantiate (prefab);
 		rigidbody.addFollower (obj);
 		obj.transform.SetParent (this.transform);
 	}
