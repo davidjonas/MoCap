@@ -14,27 +14,43 @@ class OSCLink(object):
     OSC link to send translated MoCap data from NatNet
     """
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, autoConnect=True):
+        # params
+        self.host = host
+        self.port = port
+        self.autoConnect = autoConnect
+
+        # required memebers
         self.isConnected = False
-        self.c = OSC.OSCClient()
-        self.send_address = (host, int(port))
-        self._connect()
+        self.client = OSC.OSCClient()
+
+        if self.autoConnect:
+            self._connect()
 
     def _connect(self):
-        self.c.connect(self.send_address)
+        self.client.connect((self.host, int(self.port)))
         self.isConnected = True
 
     def close(self):
-        self.c.close()
+        self.client.close()
+        self.isConnected = False
 
     def _sendMessage(self, tag, content):
+        # first check our connection
+        if self.isConnected != True:
+            if self.autoConnect != True:
+                # abort; we need a connection to send messages
+                return
+            # auto connect before sending
+            self._connect()
+
         msg = OSC.OSCMessage()
         msg.setAddress(tag) # set OSC address
         msg.append(content)
         #TODO: This is debug code
         #print bcolors.OKGREEN + "Sending message:" + bcolors.ENDC
         #print msg
-        self.c.send(msg)
+        self.client.send(msg)
 
     def sendRigibodyAsJSON(self, rigidbody):
         r = {

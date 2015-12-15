@@ -1,4 +1,3 @@
-using UnityEngine;
 using System.Threading;
 using System.Text;
 using System.Collections;
@@ -22,7 +21,7 @@ using System;
 
   public delegate void OscMessageHandler( OscMessage oscM );
 
-  public class Osc : MonoBehaviour
+  public class Osc // : MonoBehaviour
   {
       private UDPPacketIO OscPacketIO;
       Thread ReadThread;
@@ -30,10 +29,6 @@ using System;
       private OscMessageHandler AllMessageHandler;
       Hashtable AddressTable;
 
-
-	void Start() {
-		//do nothing, init must be called
-	}
 
 	public void init(UDPPacketIO oscPacketIO){
 	  OscPacketIO = oscPacketIO;
@@ -100,9 +95,9 @@ using System;
                     Thread.Sleep(20);
             }
         }
-        catch (Exception e)
+        catch //(Exception e)
         {
-            Debug.Log("[Osc] ThreadAbortException "+e);
+            //Debug.Log("[Osc] ThreadAbortException "+e);
         }
         finally
         {

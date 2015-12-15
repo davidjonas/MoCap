@@ -1,9 +1,15 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+<<<<<<< HEAD
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/MoCap-OSC/MoCapOscInterface.cs">
     <Files>
       <File FileName="Assets/MoCap-OSC/MoCapOscInterface.cs" Line="43" Column="38" />
       <File FileName="Assets/MoCap-OSC/MoCapRigidBodiesCloner.cs" Line="34" Column="31" />
+=======
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/02-PoserApp/Poser.cs">
+    <Files>
+      <File FileName="Assets/02-PoserApp/Poser.cs" Line="92" Column="112" />
+>>>>>>> 785e0888c52bdf408e5bbefed0904abfc361e069
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

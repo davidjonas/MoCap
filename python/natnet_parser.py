@@ -19,7 +19,7 @@ class NatNetParser(threading.Thread):
         threading.Thread.__init__(self)
         self.host = host
         self.multicast = multicast
-        self.port = int(port)
+        self.port = port
         self.skeletons = []
         self.rigidbodies = []
         self.version = (2, 7, 0, 0)
@@ -41,9 +41,9 @@ class NatNetParser(threading.Thread):
             if self.host is None:
                 self.dsock = rx.mkdatasock() #Connecting to localhost
             elif self.multicast is not None and self.port is not None:
-                self.dsock = rx.mkdatasock(ip_address=self.host, multicast_address=self.multicast, port=self.port) #Connecting to multicast address
+                self.dsock = rx.mkdatasock(ip_address=self.host, multicast_address=self.multicast, port=int(self.port)) #Connecting to multicast address
             else:
-                self.dsock = rx.mkdatasock(ip_address=self.host, port=self.port) # Connecting to IP address
+                self.dsock = rx.mkdatasock(ip_address=self.host, port=int(self.port)) # Connecting to IP address
             self.connected = True
         except:
             self.connected = False
