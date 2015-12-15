@@ -5,6 +5,8 @@ Project("{D176C33D-8965-E2DC-A378-77FE0674BB04}") = "unity-osc-receiver", "Assem
 EndProject
 Project("{D176C33D-8965-E2DC-A378-77FE0674BB04}") = "unity-osc-receiver", "Assembly-CSharp.csproj", "{2B891004-2CFC-2487-CC44-93062E5EBF61}"
 EndProject
+Project("{D176C33D-8965-E2DC-A378-77FE0674BB04}") = "unity-osc-receiver", "Assembly-CSharp-Editor.csproj", "{0ACE63A9-143D-9ABC-09A0-A01DFEC4F280}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,11 +21,15 @@ Global
 		{2B891004-2CFC-2487-CC44-93062E5EBF61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B891004-2CFC-2487-CC44-93062E5EBF61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B891004-2CFC-2487-CC44-93062E5EBF61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0ACE63A9-143D-9ABC-09A0-A01DFEC4F280}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ACE63A9-143D-9ABC-09A0-A01DFEC4F280}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ACE63A9-143D-9ABC-09A0-A01DFEC4F280}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ACE63A9-143D-9ABC-09A0-A01DFEC4F280}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-																		GlobalSection(MonoDevelopProperties) = preSolution
+																																											GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1

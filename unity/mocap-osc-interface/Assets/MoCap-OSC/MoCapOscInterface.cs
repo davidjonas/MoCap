@@ -46,7 +46,7 @@ public class MoCapRigidBody
 		}
 
 		// trigger clalback event so users can hook into it
-		OnUpdate (this);
+		//OnUpdate (this);
 	}
 
 	// convenience mehtod; every follower game object automatically

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
 
-public class NatNetRigidbody
+/*public class NatNetRigidbody
 {
 	public int id;
 	public Vector3 position;
@@ -136,4 +136,4 @@ public class OSCTestSender : MonoBehaviour
 			rigidbodies.Add(new NatNetRigidbody(id, position, rotation));
 		}
     }
-}
+}*/
