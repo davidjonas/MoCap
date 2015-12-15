@@ -13,6 +13,7 @@ class NatNetGUI(object):
     def natnet_connect_button_handler(self):
 
         if self.natnet is not None and self.natnet.isConnected():
+            self.natnet.stop()
             self.natnet = None
             self.natnet_link.configure(bg="red")
             self.natnet_connect_button.configure(text="connect")
@@ -76,10 +77,17 @@ class NatNetGUI(object):
             if self.osc is not None:
                 self.osc.sendRigibodyAsJSON(rb)
 
+    def on_close(self):
+        if self.natnet is not None:
+            self.natnet.stop()
+        self.top.destroy()
+
+
     def buildWindow(self):
         self.top = Tkinter.Tk()
         self.top.title("NatNet to OSC Communication == by David Jonas")
         self.top.geometry('1000x330')
+        self.top.wm_protocol("WM_DELETE_WINDOW", self.on_close)
 
         self.natnet_block = Tkinter.Frame(self.top, padx=50, pady=50)
 

@@ -26,6 +26,8 @@ class NatNetParser(threading.Thread):
         self.updated = Event()
         self.connectionLost = Event()
         self.connected = False
+        self.kill = False
+        self.daemon = True
 
     def setVersion(self, version):
         self.version=version
@@ -77,7 +79,8 @@ class NatNetParser(threading.Thread):
             return None
 
     def run(self):
-        while True:
+        self.kill = False
+        while True and not self.kill:
             try:
                 data = self.dsock.recv(rx.MAX_PACKETSIZE)
                 packet = rx.unpack(data, version=self.version)
@@ -91,11 +94,16 @@ class NatNetParser(threading.Thread):
                 self.disconnect()
                 break;
 
+    def stop(self):
+        self.kill = True
+
     def parse(self, packet):
         #import pdb; pdb.set_trace()
         self.skeletons = packet.skeletons
         self.rigidbodies = []
 
         for s in packet.skeletons:
+            #skeletonID = s.id()
             for r in s.rigid_bodies:
+                #r.skeletonID = skeletonID
                 self.rigidbodies.append(r)
