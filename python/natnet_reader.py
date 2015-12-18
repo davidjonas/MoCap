@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from event import Event
 import threading
 from datetime import datetime
+from natnet_data import *
 
 class NatNetReader(threading.Thread):
     """
@@ -10,7 +11,9 @@ class NatNetReader(threading.Thread):
     __metaclass__ = ABCMeta
 
     def __init__(self):
-        self.rigidbodies = []
+        threading.Thread.__init__(self)
+        self.rigidbodies = {}
+        self.skeletons = {}
         self.onUpdate = Event()
         self.startTime = None
         self.kill = False
@@ -22,35 +25,54 @@ class NatNetReader(threading.Thread):
     def countRigidbodies(self):
         return len(self.rigidbodies)
 
-    def getSkeleton(self, index):
-        if index > -1 and index < self.countSkeletons():
-            return skeletons[index]
+    def getOrCreateSkeleton(self, skelid):
+        if skelid in self.skeletons.keys():
+            return self.skeletons[skelid]
         else:
-            return None
+            skel = Skeleton(skelid)
+            self.skeletonsp[skelid] = skel
+            return skel
 
-    def getRigidbody(self, index):
-        if index > -1 and index < self.countRigidbodies():
-            return self.rigidbodies[index]
+    def addOrUpdateRigidbody(self, rb):
+        if rb.id in self.rigidbodies.keys():
+            self.rigidbodies[rb.id].update(rb.position, rb.orientation)
         else:
-            return None
+            self.rigidbodies[rb.id] = rb
+
+    def getAllRigidbodies(self):
+        return self.rigidbodies
+        #TODO: Deal with skeletons here, keep it perfomance critical
+        #allrb = []
+        #allrb += self.rigidbodies
+        #for s in self.skeletons:
+        #    allrb += s.rigidbodies
+        #return allrb
+
+    def getTime(self):
+        if self.startTime is not None:
+            t = datetime.now()
+            dt = (t-self.startTime).total_seconds()
+            return dt
+        else:
+            return 0
 
     def run(self):
-        self.startTime = datetime.now()
+        self.openStream()
         self.kill = False
+        self.startTime = datetime.now()
         while not self.kill:
-            frame = self.readDataFrame();
-            if frame is not None:
-                self.onUpdate();
-        closeStream();
+            self.readDataFrame()
+            self.onUpdate()
+        self.closeStream()
 
     def stop(self):
         self.kill = True
-
-    @abstractmethod
-    def readDataFrame(self):
 
     @abstractmethod
     def openStream(self): pass
 
     @abstractmethod
     def closeStream(self): pass
+
+    @abstractmethod
+    def readDataFrame(self): pass

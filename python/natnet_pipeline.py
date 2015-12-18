@@ -1,14 +1,15 @@
 # Class that reads data from a NatNetReader and streams it to a NatNetWriter
 
 class NatNetPipeline(object):
-    def __init__(self):
-        self.readers = []
-        self.writers = []
+    def __init__(self, reader, writer):
+        self.reader = reader
+        self.writer = writer
+        self.writer.attachReader(reader)
 
-    def addReader(reader):
-        self.readers.append(reader)
+    def start(self):
+        self.writer.start()
+        self.reader.start()
 
-    def addWriter(writer):
-        self.writers.append(writer)
-
-    
+    def stop(self):
+        self.reader.stop()
+        self.writer.stop()
