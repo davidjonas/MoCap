@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from natnet_pipeline import NatNetPipeline
 from default_readers import JSONNatNetReader
 from default_writers import OSCNatNetWriter
