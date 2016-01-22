@@ -5,7 +5,7 @@ except ImportError:
 from natnet_writer import NatNetWriter
 
 class OSCNatNetWriter(NatNetWriter):
-    def __init__(self, host="127.0.0.1", port="8080", autoConnect=True):
+    def __init__(self, host="127.0.0.1", port=8080, autoConnect=True):
         super(OSCNatNetWriter, self).__init__()
         self.host = host
         self.port = port

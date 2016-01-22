@@ -9,10 +9,7 @@ class RigidBody(object):
             self.orientation = orientation
             self.name = name
         elif obj is not None:
-            self.id = obj["id"]
-            self.position = obj["position"]
-            self.orientation = obj["orientation"]
-            self.name = obj["name"]
+            self.fromObject(obj)
         self.onUpdate = Event()
 
     def update(self, position, orientation):
@@ -44,9 +41,20 @@ class RigidBody(object):
             "orientation": self.orientation
         }
 
+    def fromObject(self, obj):
+        self.id = obj["id"]
+        self.position = obj["position"]
+        self.orientation = obj["orientation"]
+        self.name = obj["name"]
+
     def toJSON(self):
         json_obj = self.toObject()
         return json.dumps(json_obj)
+
+    def fromJSON(self, raw_json):
+        json_data = json.loads(raw_json)
+        self.fromObject(json_data)
+        return self
 
 class Skeleton(object):
     def __init__(self, skelid, rigidbodies={}, name="unnamed"):
