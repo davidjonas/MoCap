@@ -31,12 +31,11 @@ public class MoCapRigidBody
 			o.transform.localPosition = p;
 			o.transform.localRotation = r;
 		}
-<<<<<<< HEAD
 
-		// trigger clalback event so users can hook into it
+		// trigger callback event so users can hook into it
+		// disabled, replaced by the OnRigidBodyUpdate event in the MoCapOscInterface class
+		// and the followerGameObjects mechanism
 		//OnUpdate (this);
-=======
->>>>>>> 785e0888c52bdf408e5bbefed0904abfc361e069
 	}
 
 	// the following functions make it easy for GameObjects to follow
