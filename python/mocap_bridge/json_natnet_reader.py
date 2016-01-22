@@ -1,5 +1,8 @@
-from natnet_data import *
+from terminal_colors import bcolors
+from natnet_data import RigidBody # , Skeleton # Sekeleton is not yet supported
 from natnet_reader import NatNetReader
+
+import json
 
 class JSONNatNetReader(NatNetReader):
     def __init__(self, path, loop=True, sync=False):
