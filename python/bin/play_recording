@@ -1,15 +1,16 @@
 #!/usr/bin/env python
+import _localpaths
 
-from natnet_pipeline import NatNetPipeline
-from default_readers import JSONNatNetReader
-from default_writers import OSCNatNetWriter
+from mocap_bridge.natnet_pipeline import NatNetPipeline
+from mocap_bridge.default_readers import JSONNatNetReader
+from mocap_bridge.default_writers import OSCNatNetWriter
 
-import sys
+if len(sys.argv) < 2:
+    datafile = "data/sampleRecording3.json"
+else:
+    datafile = sys.argv[1]
 
-
-#pipeline = NatNetPipeline(JSONNatNetReader(sys.argv[1]), OSCNatNetWriter())
-pipeline = NatNetPipeline(JSONNatNetReader("data/sampleRecording3.json"), OSCNatNetWriter())
-
+pipeline = NatNetPipeline(JSONNatNetReader(datafile), OSCNatNetWriter())
 pipeline.start()
 
 while True:
