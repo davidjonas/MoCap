@@ -7,9 +7,8 @@ except ImportError:
 from natnet_reader import NatNetReader
 from event import Event
 from natnet_data import *
-import json
 
-class LiveNatnetReader(NatNetReader):
+class LiveNatNetReader(NatNetReader):
     def __init__(self, host, multicast, port):
         super(LiveNatNetReader, self).__init__()
         self.host = host
@@ -60,44 +59,3 @@ class LiveNatnetReader(NatNetReader):
         for r in packet.rigid_bodies:
             rb = RigidBody(obj=r)
             self.addOrUpdateRigidbody(rb)
-
-class JSONNatNetReader(NatNetReader):
-    def __init__(self, path, loop=True):
-        super(JSONNatNetReader, self).__init__()
-        self.path = path
-        self.loop = loop
-        self.file = None
-        isPlaying = False
-
-    def setLoop(self, loop):
-        self.loop = loop
-
-    def openStream(self):
-        print "opening file %s." % self.path
-        self.file = open(self.path, 'r')
-
-    def closeStream(self):
-        self.file.close()
-
-    def readDataFrame(self):
-        if self.file is not None:
-            line = self.file.readline()
-            if line == '':
-                if self.loop:
-                    self.file.seek(0)
-                    line = self.file.readline()
-                else:
-                    self.closeStream()
-            try:
-                data = json.loads(line)
-                dt = self.getTime()
-                #while data["t"] > dt:
-                #    pass
-                for rigid in data['rigidbodies']:
-                    rb = RigidBody(id=rigid["id"], position=rigid["p"], orientation=rigid["r"])
-                    self.addOrUpdateRigidbody(rb)
-            except:
-                print(bcolors.FAIL +"Error parsing file."+ bcolors.ENDC)
-        else:
-            #print "File does not exist."
-            pass
