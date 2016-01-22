@@ -2,7 +2,8 @@ from abc import ABCMeta, abstractmethod
 from event import Event
 import threading
 from datetime import datetime
-from natnet_data import *
+from mocap_interface.rigid_body import RigidBody
+from mocap_interface.skeleton import Skeleton
 
 class NatNetReader(threading.Thread):
     """
