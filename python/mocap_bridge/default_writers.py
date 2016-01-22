@@ -1,1 +1,1 @@
-from osc_natnet_write import OSCNatNetWriter
+from osc_natnet_writer import OSCNatNetWriter
