@@ -4,13 +4,13 @@ from mocap_bridge.interface.skeleton import Skeleton
 
 class Manager:
     def __init__(self):
-        self.rigidbodies = {}
+        self.rigid_bodies = {}
         self.skeletons = {}
 
         # Events
-        self.onUpdate = Event()
-        self.onNewSkeleton = Event()
-        self.onNewRigidBody = Event()
+        self.updateEvent = Event()
+        self.newSkeletonEvent = Event()
+        self.newRigidBodyEvent = Event()
 
         self.startTime = None
 
@@ -25,10 +25,10 @@ class Manager:
             return None
 
     def getOrCreateRigidBody(self, id):
-        rigid_body = self.self.rigid_bodies(id)
+        rigid_body = self.rigidBodyById(id)
 
         if rigid_body == None:
-            rigid_body = RigidBodySkeleton(id)
+            rigid_body = RigidBody(id)
             self.addRigidBody(rigid_body)
 
         return rigid_body
@@ -46,13 +46,16 @@ class Manager:
     def addRigidBody(self, rigid_body):
         # TODO check if there was already was a skeleton with this id to trigger update?
         self.rigid_bodies[rigid_body.id] = rigid_body
-        self.onNewRigidBody()
+        self.newRigidBodyEvent()
+        self.updateEvent(self)
 
     def addOrUpdateRigidBody(self, rigid_body):
         if rigid_body.id in self.rigid_bodies.keys():
             self.rigid_bodies[rb.id].copy(rigid_body)
         else:
             self.rigid_bodies[rb.id] = rb
+
+        self.updateEvent(self)
 
     #
     # skeletons
@@ -76,4 +79,5 @@ class Manager:
     def addSkeleton(self, skeleton):
         # TODO check if there was already was a skeleton with this id to trigger update?
         self.skeletons[skeleton.id] = skeleton
-        self.onNewSkeleton()
+        self.newSkeletonEvent()
+        self.updateEvent(self)

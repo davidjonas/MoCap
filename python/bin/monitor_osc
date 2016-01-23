@@ -1,21 +1,32 @@
 #!/usr/bin/env python
 import _localpaths
 
-from mocap_bridge.natnet_pipeline import NatNetPipeline
+from mocap_bridge.interface.manager import Manager
 from mocap_bridge.readers.osc_reader import OscReader
-from mocap_bridge.console_writer import ConsoleWriter
+from mocap_bridge.writers.console_writer import ConsoleWriter
 
 import sys
 
+# config
 osc_host = '127.0.0.1' if len(sys.argv) < 2 else sys.argv[1]
 osc_port = 8080 if len(sys.argv) < 3 else sys.argv[2]
 
-pipeline = NatNetPipeline(OscReader(osc_host, osc_port), ConsoleWriter())
-pipeline.start()
+# initialize all departments
+manager = Manager()
+reader = OscReader(host=osc_host, port=osc_port, manager=manager, threaded=False)
+writer = ConsoleWriter(manager)
 
+reader.start()
+writer.start()
+
+# execution loop
 while True:
     try:
-        pass
+        # when the reader receives new data, it will process it and feed it into the manager
+        # the manager will trigger some events when it gets new data
+        # the writer will respond to the manager's events and output information
+        reader.update()
     except:
-        pipeline.stop()
         break
+
+    manager.getOrCreateRigidBody(101)
