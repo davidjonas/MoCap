@@ -2,18 +2,17 @@
 import _localpaths
 
 from mocap_bridge.interface.manager import Manager
-from mocap_bridge.readers.osc_reader import OscReader
+from mocap_bridge.readers.json_reader import JsonReader
 from mocap_bridge.writers.console_writer import ConsoleWriter
 
 import sys
 
 # config
-osc_host = '127.0.0.1' if len(sys.argv) < 2 else sys.argv[1]
-osc_port = 8080 if len(sys.argv) < 3 else sys.argv[2]
+json_file = "data/sampleRecording2.json" if len(sys.argv) < 2 else sys.argv[1]
 
 # initialize all departments
 manager = Manager()
-reader = OscReader(host=osc_host, port=osc_port, manager=manager)
+reader = JsonReader(json_file, manager=manager)
 writer = ConsoleWriter(manager)
 
 reader.start()
@@ -26,5 +25,5 @@ while True:
         # the manager will trigger some events when it gets new data
         # the writer will respond to the manager's events and output information
         reader.update()
-    except:
+    except KeyboardInterrupt:
         break

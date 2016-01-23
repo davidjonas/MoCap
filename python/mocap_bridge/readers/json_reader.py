@@ -1,51 +1,74 @@
 from mocap_bridge.utils.color_terminal import ColorTerminal
-from mocap_bridge.interface.rigid_body import RigidBody
-from threaded_reader import ThreadedReader
 
 import json
+import threading
+from datetime import datetime
 
-class JSONNatNetReader(NatNetReader):
-    def __init__(self, path, loop=True, sync=False):
-        super(JSONNatNetReader, self).__init__()
+class JsonReader:
+    def __init__(self, path, loop=True, sync=False, threaded=False, manager=None):
         # params
         self.path = path
         self.loop = loop
         self.sync = sync
+        self.threaded = threaded
+        self.manager = manager
 
         # attributes
         self.file = None
-        # isPlaying = False
+        self.thread = None
+        self._kill = False
+        self.pendingLine = None
+        self.startTime = None
 
-    def setLoop(self, loop):
-        self.loop = loop
+    def setup(self):
+        try:
+            self.file = open(self.path, 'r')
+            ColorTerminal().success("Opened file %s" % self.path)
+        except:
+            ColorTerminal().fail("Could not open file %s" % self.path)
 
-    def openStream(self):
-        print "opening file %s." % self.path
-        self.file = open(self.path, 'r')
+        self.startTime = datetime.now()
 
-    def closeStream(self):
-        self.file.close()
-        self.file = None
-
-    def readDataFrame(self):
-        data = self._nextJsonLine()
+    def update(self):
+        if self.pendingLine == None:
+            data = self._nextJsonLine()
+        else:
+            data = self.pendingLine
+            self.pendingLine = None
 
         if data == None:
             return
 
-        try:
-            # are we performing frame time-syncs?
-            if self.sync:
-                # wait until it's time for the next
-                dt = self.getTime()
-                while data["t"] > dt:
-                    pass
+        # are we performing frame time-syncs?
+        if self.sync:
 
-            for rigid in data['rigidbodies']:
-                rb = RigidBody(id=rigid["id"], position=rigid["p"], orientation=rigid["r"])
-                self.addOrUpdateRigidbody(rb)
-        except:
-            print(bcolors.FAIL +"Error parsing file."+ bcolors.ENDC)
+            # wait until it's time for the next
+            dt = self.getTime()
+            if data["t"] > dt:
+                # store in pendingLine for later processing
+                self.pendingLine = data
+                return
+
+        for rigid in data['rigidbodies']:
+            if self.manager:
+                self.manager.processRigidBodyObject({
+                    'id': rigid['id'],
+                    'position': rigid['p'],
+                    'orientation': rigid['r']
+                })
+
+    def destroy(self):
+        self.file.close()
+        self.file = None
+
+    def setLoop(self, loop):
+        self.loop = loop
+
+    def getTime(self):
+        if self.startTime is None:
+            return 0
+
+        return (datetime.now()-self.startTime).total_seconds()
 
     def _nextJsonLine(self):
         if self.file == None:
@@ -75,7 +98,7 @@ class JSONNatNetReader(NatNetReader):
     def _readLine(self):
         # we need a file handle
         if self.file is None:
-            #print "File does not exist."
+            # print "File does not exist."
             return None
 
         # grab next line from file the file
@@ -92,5 +115,33 @@ class JSONNatNetReader(NatNetReader):
             return self._readLine()
 
         # nothing (more) to read and we're not looping
-        self.closeStream()
+        self.stop()
         return None
+
+    def start(self):
+        if not self.threaded:
+            self.setup()
+            return
+
+        if self.thread and self.thread.isAlive():
+            ColorTerminal().warn("OscReader - Can't start while a thread is already running")
+            return
+
+        self._kill = False
+        # threaded loop method will call setup
+        self.thread = threading.Thread(target=self.threaded_loop)
+
+    def stop(self):
+        if self.threaded:
+            # threaded loop method will call destroy
+            self._kill = True
+        else:
+            self.destroy()
+
+    def threaded_loop(self):
+        self.setup()
+
+        while not self._kill:
+            self.update()
+
+        self.destroy()

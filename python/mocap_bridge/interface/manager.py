@@ -51,12 +51,19 @@ class Manager:
 
     def addOrUpdateRigidBody(self, rigid_body):
         if rigid_body.id in self.rigid_bodies.keys():
-            self.rigid_bodies[rb.id].copy(rigid_body)
+            self.rigid_bodies[rigid_body.id].copy(rigid_body)
         else:
-            self.rigid_bodies[rb.id] = rb
+            self.rigid_bodies[rigid_body.id] = rigid_body
 
         self.updateEvent(self)
 
+    def processRigidBodyJson(self, json):
+        rb = RigidBody().fromJSON(obj)
+        self.addOrUpdateRigidBody(rb)
+
+    def processRigidBodyObject(self, obj):
+        rb = RigidBody().fromObject(obj)
+        self.addOrUpdateRigidBody(rb)
     #
     # skeletons
     #

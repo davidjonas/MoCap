@@ -47,10 +47,14 @@ class RigidBody(object):
         }
 
     def fromObject(self, obj):
-        self.id = obj["id"]
-        self.position = obj["position"]
-        self.orientation = obj["orientation"]
-        self.name = obj["name"]
+        if 'id' in obj.keys():
+            self.id = obj["id"]
+        if 'position' in obj.keys():
+            self.position = obj["position"]
+        if 'orientation' in obj.keys():
+            self.orientation = obj["orientation"]
+        if 'name' in obj.keys():
+            self.name = obj["name"]
         return self
 
     def toJSON(self):

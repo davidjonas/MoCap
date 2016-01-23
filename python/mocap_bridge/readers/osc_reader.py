@@ -1,7 +1,4 @@
 from mocap_bridge.utils.color_terminal import ColorTerminal
-from mocap_bridge.utils.event import Event
-from mocap_bridge.interface.rigid_body import RigidBody # Skeleton not yet supported
-from datetime import datetime
 
 try:
     import OSC
@@ -19,35 +16,11 @@ class OscReader:
         self.threaded = threaded
 
         # attrs
+        self._kill = false
         self.oscServer = None
-        self.startTime = None
         self.thread = None
 
-        # events
-        self.onUpdate = Event()
-
-    def start(self):
-        if not self.threaded:
-            self.setup()
-            return
-
-        if self.thread:
-            ColorTerminal().warn("OscReader - Can't start while a htread is already running")
-            return
-
-        self._kill = False
-        # threaded loop method will call setup
-        self.thread = threading.Thread(target=self.threaded_loop)
-
-    def stop(self):
-        if self.threaded:
-            # threaded loop method will call destroy
-            self._kill = True
-        else:
-            self.destroy()
-
     def setup(self):
-        print 'setup'
         if self.oscServer != None:
             self.destroy()
 
@@ -57,22 +30,12 @@ class OscReader:
         self.oscServer.addMsgHandler('/rigidbody', self.oscRigidBodyHandler)
         ColorTerminal().success("Server running")
 
-        self.startTime = datetime.now()
-
     def destroy(self):
         if self.oscServer == None:
             return
 
         self.oscServer.close()
         self.oscServer = None
-
-    def threaded_loop(self):
-        self.setup()
-
-        while not self._kill:
-            self.update()
-
-        self.destroy()
 
     def update(self):
         if self.oscServer == None:
@@ -92,21 +55,39 @@ class OscReader:
             self.oscServer.handle_request()
             count += 1
 
-    def getTime(self):
-        if self.startTime is None:
-            return 0
-
-        return (datetime.now()-self.startTime).total_seconds()
-
     def oscRigidBodyHandler(self, addr, tags, data, client_address):
         # readers can interface with the mocap data manager directly (most efficient)
-        rb = RigidBody().fromJSON(data[0])
-
         if self.manager:
-            self.manager.addOrUpdateRigidBody(rb)
-
-        self.onRigidBody(rb)
+            self.manager.processRigidBodyJson(data[0])
 
     def handleTimeout(self):
         if self.oscServer != None:
             self.oscServer.timed_out = True
+
+    def start(self):
+        if not self.threaded:
+            self.setup()
+            return
+
+        if self.thread and self.thread.isAlive():
+            ColorTerminal().warn("OscReader - Can't start while a thread is already running")
+            return
+
+        self._kill = False
+        # threaded loop method will call setup
+        self.thread = threading.Thread(target=self.threaded_loop)
+
+    def stop(self):
+        if self.threaded:
+            # threaded loop method will call destroy
+            self._kill = True
+        else:
+            self.destroy()
+
+    def threaded_loop(self):
+        self.setup()
+
+        while not self._kill:
+            self.update()
+
+        self.destroy()
