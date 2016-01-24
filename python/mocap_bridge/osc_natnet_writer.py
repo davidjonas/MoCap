@@ -1,3 +1,4 @@
+from terminal_colors import bcolors
 try:
     import OSC
 except ImportError:
@@ -38,4 +39,5 @@ class OSCNatNetWriter(NatNetWriter):
         try:
             self.client.send(msg)
         except:
+            print bcolors.FAIL + "err"+ bcolors.ENDC
             self.openStream()

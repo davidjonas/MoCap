@@ -8,7 +8,7 @@ except ImportError:
 import threading
 
 class OscReader:
-    def __init__(self, host="127.0.0.1", port=8080, manager=None, threaded=False):
+    def __init__(self, host="127.0.0.1", port=8080, manager=None, threaded=False, autoStart=True):
         # params
         self.manager = manager
         self.host = host
@@ -19,6 +19,9 @@ class OscReader:
         self._kill = False
         self.oscServer = None
         self.thread = None
+
+        if autoStart:
+            self.start()
 
     def setup(self):
         if self.oscServer != None:

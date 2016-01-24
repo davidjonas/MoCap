@@ -56,7 +56,7 @@ class Manager:
     # about the mocap interface proprietary data classes
 
     def processRigidBodyJson(self, json):
-        rb = RigidBody().fromJSON(obj)
+        rb = RigidBody().fromJSON(json)
         self.addOrUpdateRigidBody(rb)
 
     def processRigidBodyObject(self, obj):
