@@ -3,8 +3,8 @@ bl_info = {
     "author": "Short Notion (Mark van de Korput)",
     "version": (0, 1),
     "blender": (2, 75, 0),
-    "location": "View3D > T-panel > Scene Tools",
-    "description": "Receives and precosses OSC messages with MoCap data",
+    "location": "View3D > T-panel > Object Tools",
+    "description": "Receives and processes OSC messages with MoCap data",
     "warning": "",
     "wiki_url": "",
     "tracker_url": "",
@@ -15,23 +15,68 @@ import logging
 # blender stuff
 import bpy
 
+from mocap_bridge.interface.manager import Manager
+from mocap_bridge.readers.json_reader import JsonReader
+
+try:
+    from MoCapCore import MoCapCore
+except ImportError as err:
+    logging.getLogger().error('MoCapJSON requires MoCapCore')
+
+def update(controller):
+    owner = controller.owner
+    MoCapJson.for_owner(owner).update()
+
+
+class MoCapJson:
+    def for_owner(owner):
+        if not 'mocap_json' in owner:
+            owner['mocap_json'] = MoCapJson(owner)
+        return owner['mocap_json']
+
+    def __init__(self, owner):
+        self.owner = owner
+        self.manager = None
+        self.json_reader = None
+        self.config = None
+        self.setup()
+
+    def setup(self):
+        if not self.config:
+            self.config = bpy.data.objects[self.owner.name].moCapJsonConfig
+
+        if not self.manager:
+            try:
+                self.manager = MoCapCore.for_owner(self.owner).manager
+            except:
+                self.manager = Manager.instance() # try to get a global manager instance
+
+        if not self.json_reader:
+            self.json_reader = JsonReader(path=self.config.file, loop=self.config.loop, sync=self.config.sync, manager=self.manager, autoStart=self.config.enabled)
+
+    def update(self):
+        if self.json_reader and self.config.enabled:
+            self.json_reader.update()
+            print("JSON time: {0}".format(self.json_reader.getTime()))
+
+
 # This class is in charge of the blender UI config panel
 class Panel(bpy.types.Panel):
     """Creates a Panel in the Object properties window"""
     bl_label = "MoCap JSON"
-    bl_idname = "SCENE_mocap_json"
+    bl_idname = "OBJECT_mocap_json"
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
-    bl_context = "scene"
+    bl_context = "object"
 
     def draw_header(self, context):
       layout = self.layout
-      config = context.scene.moCapJsonConfig
+      config = context.object.moCapJsonConfig
       layout.prop(config, "enabled", text='')
 
     def draw(self, context):
         layout = self.layout
-        config = context.scene.moCapJsonConfig
+        config = context.object.moCapJsonConfig
 
         if config.enabled == True:
           layout.row().prop(config, "file")
@@ -43,9 +88,9 @@ class Panel(bpy.types.Panel):
 class Config(bpy.types.PropertyGroup):
   @classmethod
   def register(cls):
-    bpy.types.Scene.moCapJsonConfig = bpy.props.PointerProperty(
+    bpy.types.Object.moCapJsonConfig = bpy.props.PointerProperty(
       name="MoCapJSON Config",
-      description="Scene-specific MoCapOSC connection configuration",
+      description="Object-specific MoCapOSC connection configuration",
       type=cls)
 
     # Add in the properties

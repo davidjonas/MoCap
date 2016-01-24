@@ -4,7 +4,7 @@ bl_info = {
     "version": (0, 1),
     "blender": (2, 75, 0),
     "location": "View3D > T-panel > Scene Tools",
-    "description": "Receives and precosses OSC messages with MoCap data",
+    "description": "Receives and processes OSC messages with MoCap data",
     "warning": "",
     "wiki_url": "",
     "tracker_url": "",
