@@ -18,11 +18,6 @@ import bpy
 from mocap_bridge.interface.manager import Manager
 from mocap_bridge.readers.json_reader import JsonReader
 
-try:
-    from MoCapCore import MoCapCore
-except ImportError as err:
-    logging.getLogger().error('MoCapJSON requires MoCapCore')
-
 def update(controller):
     owner = controller.owner
     MoCapJson.for_owner(owner).update()
@@ -46,10 +41,7 @@ class MoCapJson:
             self.config = bpy.data.objects[self.owner.name].moCapJsonConfig
 
         if not self.manager:
-            try:
-                self.manager = MoCapCore.for_owner(self.owner).manager
-            except:
-                self.manager = Manager.instance() # try to get a global manager instance
+            self.manager = Manager.instance() # try to get a global manager instance
 
         if not self.json_reader:
             self.json_reader = JsonReader(path=self.config.file, loop=self.config.loop, sync=self.config.sync, manager=self.manager, autoStart=self.config.enabled)

@@ -15,11 +15,6 @@ import bpy
 import logging
 import mathutils
 
-try:
-    from MoCapCore import MoCapCore
-except ImportError as err:
-    logging.getLogger().error('MoCapJSON requires MoCapCore')
-
 from mocap_bridge.interface.manager import Manager
 
 
@@ -38,14 +33,8 @@ class MoCapSpawner:
 
     def __init__(self, owner=None):
         self.owner = owner
-
-        try:
-            self.manager = MoCapCore.for_owner(self.owner).manager
-        except:
-            self.manager = Manager.instance() # try to get a global manager instance
-
+        self.manager = Manager.instance() # try to get a global manager instance
         self.config = bpy.data.objects[self.owner.name].moCapSpawnerConfig
-
         self.rigid_body_object_list = RigidBodyObjectList()
 
         if self.config.enabled:
