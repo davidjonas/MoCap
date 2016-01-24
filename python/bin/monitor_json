@@ -12,11 +12,8 @@ json_file = "data/sampleRecording2.json" if len(sys.argv) < 2 else sys.argv[1]
 
 # initialize all departments
 manager = Manager()
-reader = JsonReader(json_file, manager=manager)
 writer = ConsoleWriter(manager)
-
-reader.start()
-writer.start()
+reader = JsonReader(json_file, manager=manager)
 
 # execution loop
 while True:

@@ -4,7 +4,7 @@ from mocap_bridge.utils.color_terminal import ColorTerminal
 from datetime import datetime
 
 class ConsoleWriter:
-    def __init__(self, manager=None, delay=0.5):
+    def __init__(self, manager=None, delay=0.5, autoStart=True):
         # params
         self.manager=manager
         self.delay=delay
@@ -13,7 +13,11 @@ class ConsoleWriter:
         self.startTime = None
         self.lastUpdateTime = None
 
-        self.manager.updateEvent += self.onUpdate
+        if self.manager != None:
+            self.manager.updateEvent += self.onUpdate
+
+        if autoStart == True:
+            self.start()
 
     def start(self):
         self.startTime = datetime.now()

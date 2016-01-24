@@ -16,7 +16,7 @@ class OscReader:
         self.threaded = threaded
 
         # attrs
-        self._kill = false
+        self._kill = False
         self.oscServer = None
         self.thread = None
 

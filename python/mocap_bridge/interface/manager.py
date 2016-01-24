@@ -1,6 +1,6 @@
+from rigid_body import RigidBody
+from skeleton import Skeleton
 from mocap_bridge.utils.event import Event
-from mocap_bridge.interface.rigid_body import RigidBody
-from mocap_bridge.interface.skeleton import Skeleton
 
 class Manager:
     def __init__(self):
@@ -9,14 +9,16 @@ class Manager:
 
         # Events
         self.updateEvent = Event()
-        self.newSkeletonEvent = Event()
-        self.newRigidBodyEvent = Event()
 
         self.startTime = None
 
-    #
+    # === === ===
     # RigidBodies
-    #
+    # === === ===
+
+    # fetchers
+    def allRigidBodies(self):
+        return self.rigid_bodies.values()
 
     def rigidBodyById(self, id):
         try:
@@ -33,29 +35,25 @@ class Manager:
 
         return rigid_body
 
-    # convenience methods, so callers need to know as little
-    # as possible about the moca_interface proprietary classes
-    def addRigidBodyByObject(self, obj):
-        rb = RigidBody().fromObject(obj)
-        self.addRigidBody(rigid_body)
-
-    def addRigidBodyByJson(self, json):
-        rb = RigidBody().fromJSON(obj)
-        self.addRigidBody(rigid_body)
+    # adders
 
     def addRigidBody(self, rigid_body):
-        # TODO check if there was already was a skeleton with this id to trigger update?
-        self.rigid_bodies[rigid_body.id] = rigid_body
-        self.newRigidBodyEvent()
-        self.updateEvent(self)
+        existing = self.rigidBodyById(rigid_body.id)
 
-    def addOrUpdateRigidBody(self, rigid_body):
-        if rigid_body.id in self.rigid_bodies.keys():
-            self.rigid_bodies[rigid_body.id].copy(rigid_body)
+        if existing != None:
+            existing.copy(rigid_body)
         else:
             self.rigid_bodies[rigid_body.id] = rigid_body
 
         self.updateEvent(self)
+
+    # just an alias with a more explicit name
+    def addOrUpdateRigidBody(self, rigid_body):
+        self.addRigidBody(rigid_body)
+
+    # RAW data processors, these are convenience methods,
+    # so the calling class doesn't necessarily have to know
+    # about the mocap interface proprietary data classes
 
     def processRigidBodyJson(self, json):
         rb = RigidBody().fromJSON(obj)
@@ -64,6 +62,7 @@ class Manager:
     def processRigidBodyObject(self, obj):
         rb = RigidBody().fromObject(obj)
         self.addOrUpdateRigidBody(rb)
+
     #
     # skeletons
     #
@@ -84,7 +83,10 @@ class Manager:
         return skeleton
 
     def addSkeleton(self, skeleton):
-        # TODO check if there was already was a skeleton with this id to trigger update?
-        self.skeletons[skeleton.id] = skeleton
-        self.newSkeletonEvent()
+        existing = skeletonById(skeleton.id)
+        if existing != None:
+            existing.copy(skeleton)
+        else:
+            self.skeletons[skeleton.id] = skeletonById
+
         self.updateEvent(self)

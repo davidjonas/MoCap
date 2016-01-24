@@ -13,11 +13,8 @@ osc_port = 8080 if len(sys.argv) < 3 else sys.argv[2]
 
 # initialize all departments
 manager = Manager()
-reader = OscReader(host=osc_host, port=osc_port, manager=manager)
 writer = ConsoleWriter(manager)
-
-reader.start()
-writer.start()
+reader = OscReader(host=osc_host, port=osc_port, manager=manager)
 
 # execution loop
 while True:
