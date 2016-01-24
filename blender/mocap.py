@@ -1,37 +1,38 @@
 import bpy
 import bge
 
+import logging
 import mathutils
-# import math
 
 from mocap_bridge.interface.manager import Manager
 from mocap_bridge.readers.json_reader import JsonReader
 
 # this function is called by the game logic controller
 def updateMoCap(controller):
-    BlenderMoCap.instance().update()
+    scene = bge.logic.getCurrentScene()
+
+    # first time? Create our main object instanc and attach it to the scene
+    if not 'mocap' in scene:
+        scene['mocap'] = BlenderMoCap(scene)
+
+    # update our main mocap object
+    scene['mocap'].update()
 
 class BlenderMoCap:
-    # singleton
-    _instance = None
-
-    def instance():
-        if BlenderMoCap._instance == None:
-            BlenderMoCap._instance = BlenderMoCap()
-
-        return BlenderMoCap._instance
-
     def __init__(self, scene=None):
+        print('BlenderMoCap.__init__')
+
         self.scene = scene
 
         if self.scene == None:
             self.scene = bge.logic.getCurrentScene()
 
         self.manager = Manager()
-        self.rigid_body_objects = RigidBodyObjects(self.scene)
+        self.rigid_body_object_list = RigidBodyObjectList()
 
         # self.osc_reader = OscReader(host=self.scene.moCapOscConfig.host, port= self.scene.moCapOscConfig.port, manager=manager, autoStart=self.scene.moCapOscConfig.enabled)
         self.configScene = bpy.context.scene
+
         config = self.configScene.moCapJsonConfig
         self.json_reader = JsonReader(path=config.file, loop=config.loop, sync=config.sync, manager=self.manager, autoStart=config.enabled)
 
@@ -43,86 +44,61 @@ class BlenderMoCap:
             self.json_reader.update()
 
     def onRigidBody(self, rigid_body):
-        print("Got rigid body, id: {0}".format(rigid_body.id))
         obj = self.getObject(rigid_body)
 
         if rigid_body.position:
             obj.localPosition = rigid_body.position
-        # if rigid_body.orientation:
-        #     print(rigid_body.orientation)
-        #     obj.localOrientation = mathutils.Quaternion(rigid_body.orientation)
+        if rigid_body.orientation:
+            obj.localOrientation = mathutils.Quaternion(rigid_body.orientation)
 
     # finds existing or creates new
     def getObject(self, rigid_body):
-        obj = self.rigid_body_objects.object(rigid_body.id)
+        obj = self.rigid_body_object_list.object(rigid_body.id)
 
         if obj == None:
-            obj = self.spawnObject()
-            self.rigid_body_objects.add(rigid_body, obj.name)
+            rbo = self.rigid_body_object_list.add(rigid_body)
+            rbo.spawn(self.scene)
+            obj = rbo.object
 
         return obj
 
-    def spawnObject(self, object_name=None):
+class RigidBodyObject:
+    def __init__(self, rigid_body, object=None):
+        self.rigid_body = rigid_body
+        self.object=object
+
+    def spawn(self, scene, object_name=None):
+        if self.object:
+            logging.getLogger().warning("RigidBodyObject.spawn replacing existing object")
+
         if object_name == None:
             object_name = 'Cube' # self.configScene.moCapJsonConfig.
 
-        return self.scene.addObject(object_name, object_name)
-
-
+        self.object = scene.addObject(object_name, object_name)
+        logging.getLogger().debug("RigidBodyObject.spawn spawned new object")
+        return self.object
 
 # This class manages the connection between rigid bodies and blender objects
-class RigidBodyObjects:
-    def __init__(self, scene=None):
-        # mapping will hold <rigid_body ID>: <object_name> pairs
-        self.mapping = {}
-        self.rigid_bodies = set()
+class RigidBodyObjectList:
+    def __init__(self):
+        self.rigid_body_objects = set()
 
-        self.scene = scene
-        if not self.scene:
-            self.scene = bge.logic.getCurrentScene()
+    def add(self, param):
+        if param.__class__.__name__ == 'RigidBody':
+            # turn param in to a RigidBodyObject instance
+            param = RigidBodyObject(param)
 
-    def add(self, rigid_body, object_name):
-        self.mapping[rigid_body.id] = object_name
-        self.rigid_bodies.add(rigid_body)
+        self.rigid_body_objects.add(param)
+        return param
 
-    def remove(self, rigid_body):
+    def remove(self, rigid_body_object):
         try:
-            self.mapping.pop(rigid_body.id)
+            self.rigid_body_objects.remove(rigid_body_object)
         except KeyError:
             pass
 
-        # the given rigid body might be a different
-        # instance with the same id
-        rb = self.rigid_body_by_id(rigid_body.id)
-
-        if rb != None:
-            self.rigid_bodies.remove(rb)
-
-    def object_name(self, rigid_body_id):
-        try:
-            return self.mapping[rigid_body_id]
-        except KeyError:
-            return None
-
     def object(self, rigid_body_id):
-        name = self.object_name(rigid_body_id)
-        if name:
-            return self.scene.objects[name]
+        for rbo in self.rigid_body_objects:
+            if rbo.rigid_body.id == rigid_body_id:
+                return rbo.object
         return None
-
-    def rigid_body_id(self, object_name):
-        for rigid_body_id, obj_name in self.mapping.iteritems():
-            if obj_name == object_name:
-                return rigid_body_id
-        return None
-
-    def rigid_body(self, object_name):
-        return self.rigid_body_by_id(self.rigid_body_id(object_name))
-
-    def rigid_body_by_id(self, rigid_body_id):
-        for rigid_body in self.rigid_bodies:
-            if rigid_body.id == id:
-                return rigid_body
-        return None
-
-# from MoCapOSC import BlenderMoCap
