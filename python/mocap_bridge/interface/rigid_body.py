@@ -1,5 +1,5 @@
 import json
-from event import Event
+from mocap_bridge.utils.event import Event
 
 class RigidBody(object):
     def __init__(self, id=None, position=None, orientation=None, name="unnamed", obj=None):

@@ -4,7 +4,7 @@ bl_info = {
     "version": (0, 1),
     "blender": (2, 75, 0),
     "location": "View3D > T-panel > Scene Tools",
-    "description": "Receives and precosses OSC messages with MoCap data",
+    "description": "Receives and processes OSC messages with MoCap data",
     "warning": "",
     "wiki_url": "",
     "tracker_url": "",
@@ -14,6 +14,7 @@ bl_info = {
 import logging
 # blender stuff
 import bpy
+
 
 # This class is in charge of the blender UI config panel
 class Panel(bpy.types.Panel):
@@ -37,8 +38,6 @@ class Panel(bpy.types.Panel):
           layout.row().prop(config, "host")
           layout.row().prop(config, "port")
 
-# end of class PointCloudLoaderPanel
-
 
 # This class represents the config data (that the UI Panel interacts with)
 class Config(bpy.types.PropertyGroup):
@@ -53,15 +52,6 @@ class Config(bpy.types.PropertyGroup):
     cls.enabled = bpy.props.BoolProperty(name="enabled", default=False, description="Enable MoCapOSC")
     cls.host = bpy.props.StringProperty(name="OSC Host", default="127.0.0.1")
     cls.port = bpy.props.IntProperty(name="OSC Port", default=8080, soft_min=0)
-
-  ## Unregister is causing errors and doesn't seem to be necessary
-  # @classmethod
-  # def unregister(cls):
-  #   print("Unreg: ")
-  #   print(dir(bpy.types.Object))
-  #   del bpy.types.Object.pointCloudLoaderConfig
-
-
 
 def register():
   bpy.utils.register_module(__name__)
