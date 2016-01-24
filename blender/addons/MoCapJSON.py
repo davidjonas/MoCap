@@ -57,7 +57,7 @@ class MoCapJson:
     def update(self):
         if self.json_reader and self.config.enabled:
             self.json_reader.update()
-            print("JSON time: {0}".format(self.json_reader.getTime()))
+            # print("JSON time: {0}".format(self.json_reader.getTime()))
 
 
 # This class is in charge of the blender UI config panel
