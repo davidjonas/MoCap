@@ -10,38 +10,31 @@ from mocap_bridge.readers.json_reader import JsonReader
 # this function is called by the game logic controller
 def updateMoCap(controller):
     scene = bge.logic.getCurrentScene()
+    MoCap.for_scene(scene).update()
+    if not 'mocapjson' in scene:
+        scene['mocapjson'] = MoCapJson()
+    scene['mocapjson'].update()
 
-    # first time? Create our main object instanc and attach it to the scene
-    if not 'mocap' in scene:
-        scene['mocap'] = BlenderMoCap(scene)
+class MoCap:
+    def for_scene(scene):
+        if not 'mocap' in scene:
+            scene['mocap'] = MoCap(scene)
+        return scene['mocap']
 
-    # update our main mocap object
-    scene['mocap'].update()
-
-class BlenderMoCap:
     def __init__(self, scene=None):
-        print('BlenderMoCap.__init__')
-
         self.scene = scene
 
         if self.scene == None:
             self.scene = bge.logic.getCurrentScene()
 
-        self.manager = Manager()
+        self.manager = Manager.instance()
         self.rigid_body_object_list = RigidBodyObjectList()
-
-        # self.osc_reader = OscReader(host=self.scene.moCapOscConfig.host, port= self.scene.moCapOscConfig.port, manager=manager, autoStart=self.scene.moCapOscConfig.enabled)
-        self.configScene = bpy.context.scene
-
-        config = self.configScene.moCapJsonConfig
-        self.json_reader = JsonReader(path=config.file, loop=config.loop, sync=config.sync, manager=self.manager, autoStart=config.enabled)
 
         self.manager.addRigidBodiesCallback(self.onRigidBody)
         self.manager.processRigidBodyObject({'id': 1, 'position': (0.0, 0.0, 0.0), 'orientation': (0.0, 0.0, 0.0, 0.0)})
 
     def update(self):
-        if self.json_reader and self.configScene.moCapJsonConfig.enabled:
-            self.json_reader.update()
+        pass
 
     def onRigidBody(self, rigid_body):
         obj = self.getObject(rigid_body)
@@ -62,6 +55,23 @@ class BlenderMoCap:
 
         return obj
 
+class MoCapJson:
+    def __init__(self, scene=None, manager=None):
+        self.scene = scene
+        if self.scene == None:
+            self.scene = bpy.context.scene
+
+        self.manager = manager
+        if not self.manager:
+            self.manager = Manager.instance()
+
+        config = self.scene.moCapJsonConfig
+        self.json_reader = JsonReader(path=config.file, loop=config.loop, sync=config.sync, manager=self.manager, autoStart=config.enabled)
+
+    def update(self):
+        if self.json_reader and self.scene.moCapJsonConfig.enabled:
+            self.json_reader.update()
+
 class RigidBodyObject:
     def __init__(self, rigid_body, object=None):
         self.rigid_body = rigid_body
@@ -72,7 +82,7 @@ class RigidBodyObject:
             logging.getLogger().warning("RigidBodyObject.spawn replacing existing object")
 
         if object_name == None:
-            object_name = 'Cube' # self.configScene.moCapJsonConfig.
+            object_name = 'Cube'
 
         self.object = scene.addObject(object_name, object_name)
         logging.getLogger().debug("RigidBodyObject.spawn spawned new object")

@@ -3,6 +3,13 @@ from mocap_bridge.interface.skeleton import Skeleton
 from mocap_bridge.utils.event import Event
 
 class Manager:
+    _instance = None
+
+    def instance(*args, **kargs):
+        if not Manager._instance:
+            Manager._instance = Manager(*args, **kargs)
+        return Manager._instance
+
     def __init__(self):
         self.rigid_bodies = {}
         self.skeletons = {}
