@@ -2,15 +2,19 @@ import json
 from event import Event
 
 class RigidBody(object):
-    def __init__(self, id=None, position=None, orientation=None, obj=None, name="unnamed"):
-        if obj is None and id is not None and position is not None and orientation is not None:
-            self.id = id
-            self.position = position
-            self.orientation = orientation
-            self.name = name
-        elif obj is not None:
+    def __init__(self, id=None, position=None, orientation=None, name="unnamed", obj=None):
+        self.id = id
+        self.position = position
+        self.orientation = orientation
+        self.name = name
+
+        if obj is not None:
             self.fromObject(obj)
+
         self.onUpdate = Event()
+
+    def copy(self, rigid_body):
+        self.update(rigid_body.position, rigid_body.orientation)
 
     def update(self, position, orientation):
         self.position = position
@@ -19,6 +23,7 @@ class RigidBody(object):
 
     def rename(self, name):
         self.name = name
+        # self.onUpdate ???
 
     def toString(self):
         return "%(name)s () = p(%(posX)s, %(posY)s, %(posZ)s), r(%(rotX)s, %(rotY)s, %(rotZ)s, %(rotW)s)" % {
@@ -42,10 +47,15 @@ class RigidBody(object):
         }
 
     def fromObject(self, obj):
-        self.id = obj["id"]
-        self.position = obj["position"]
-        self.orientation = obj["orientation"]
-        self.name = obj["name"]
+        if 'id' in obj.keys():
+            self.id = obj["id"]
+        if 'position' in obj.keys():
+            self.position = obj["position"]
+        if 'orientation' in obj.keys():
+            self.orientation = obj["orientation"]
+        if 'name' in obj.keys():
+            self.name = obj["name"]
+        return self
 
     def toJSON(self):
         json_obj = self.toObject()
@@ -55,30 +65,3 @@ class RigidBody(object):
         json_data = json.loads(raw_json)
         self.fromObject(json_data)
         return self
-
-class Skeleton(object):
-    def __init__(self, skelid, rigidbodies={}, name="unnamed"):
-        self.id = skelid
-        self.rigidbodies = rigidbodies
-        self.name = name
-
-    def addRigidbody(self, rb):
-        self.rigidbodies[rb.id] = rb
-
-    def getRigidbody(self, rbid):
-        if rbid in self.rigidbodies.keys():
-            return self.rigidbodies[rbid]
-        return None
-
-    def addOrUpdateRigidbody(self, rb):
-        if rb.id in self.rigidbodies.keys():
-            self.rigidbodies[rb.id].update(rb.position, rb.orientation)
-        else:
-            self.rigidbodies[rb.id] = rb
-
-
-    def toString(self):
-        pass
-
-    def toJSON(self):
-        pass

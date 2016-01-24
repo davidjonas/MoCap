@@ -1,5 +1,5 @@
 from terminal_colors import bcolors
-from natnet_data import RigidBody # , Skeleton # Sekeleton is not yet supported
+from mocap_interface.rigid_body import RigidBody # , Skeleton # Sekeleton is not yet supported
 from natnet_reader import NatNetReader
 
 import json
