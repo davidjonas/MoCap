@@ -1,5 +1,5 @@
-from rigid_body import RigidBody
-from skeleton import Skeleton
+from mocap_bridge.interface.rigid_body import RigidBody
+from mocap_bridge.interface.skeleton import Skeleton
 from mocap_bridge.utils.event import Event
 
 class Manager:
@@ -9,6 +9,8 @@ class Manager:
 
         # Events
         self.updateEvent = Event()
+        self.updateRigidBodyEvent = Event()
+        self.newRigidBodyEvent = Event()
 
         self.startTime = None
 
@@ -42,8 +44,10 @@ class Manager:
 
         if existing != None:
             existing.copy(rigid_body)
+            self.updateRigidBodyEvent(rigid_body)
         else:
             self.rigid_bodies[rigid_body.id] = rigid_body
+            self.newRigidBodyEvent(rigid_body)
 
         self.updateEvent(self)
 
@@ -62,6 +66,16 @@ class Manager:
     def processRigidBodyObject(self, obj):
         rb = RigidBody().fromObject(obj)
         self.addOrUpdateRigidBody(rb)
+
+    # this
+    def addRigidBodiesCallback(self, callback):
+        # register callback for both new and update events
+        self.updateRigidBodyEvent += callback
+        self.newRigidBodyEvent += callback
+
+        # and invoke callback for every rigid body already in the system
+        for rigid_body in self.rigid_bodies:
+            callback(rigid_body)
 
     #
     # skeletons
