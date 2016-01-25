@@ -49,75 +49,63 @@ class MoCapSpawner:
         self.rigid_body_object_list = RigidBodyObjectList()
 
         if self.config.enabled:
-            self.manager.addRigidBodiesCallback(self.onRigidBody)
+            # register callback for new rigid bodies
+            # this method will also invoke the callback for any rigid body
+            # that is already in the system
+            self.manager.addNewRigidBodyCallback(self.onRigidBody)
 
+    # callback method to deal with new rigid bodies
     def onRigidBody(self, rigid_body):
-        obj = self.getObject(rigid_body)
+        # spawn blender object and create rigidBody-blenderObject connection record
+        self.rigid_body_object_list.add(rigid_body, self.spawnObject())
 
-        if rigid_body.position:
-            obj.localPosition = rigid_body.position
-        if rigid_body.orientation:
-            obj.localOrientation = mathutils.Quaternion(rigid_body.orientation)
+    def spawnObject(self):
+        object = self.owner.scene.addObject(self.config.object, self.config.object)
+        object.setParent(self.owner)
 
-    # finds existing or creates new
-    def getObject(self, rigid_body):
-        obj = self.rigid_body_object_list.object(rigid_body.id)
+        logging.getLogger().debug("RigidBodyObject.spawn spawned new object")
+        return object
 
-        if obj == None:
-            rbo = self.rigid_body_object_list.add(rigid_body)
-            rbo.spawn(self.owner.scene, parent=self.owner, object_name=self.config.object)
-            obj = rbo.object
-
-        return obj
-
-
-# This class manages a single rigid_body-blender_object connection
+# This class manages a single rigidBody-blenderObject connection
 class RigidBodyObject:
     def __init__(self, rigid_body, object=None):
         self.rigid_body = rigid_body
         self.object=object
+        # register callback that gets called whenever the rigid body gets updated
+        self.rigid_body.onUpdate += self.onRigidBodyUpdate
 
-    def spawn(self, scene, object_name=None, parent=None):
-        if self.object:
-            logging.getLogger().warning("RigidBodyObject.spawn replacing existing object")
+    # rigid body update callback
+    def onRigidBodyUpdate(self, rigid_body):
+        # apply position
+        if rigid_body.position:
+            self.object.localPosition = rigid_body.position
+        # apply orientation
+        if rigid_body.orientation:
+            self.object.localOrientation = mathutils.Quaternion(rigid_body.orientation)
 
-        if object_name == None:
-            object_name = 'Cube'
-
-        self.object = scene.addObject(object_name, object_name)
-
-        if parent:
-            self.object.setParent(parent)
-
-        logging.getLogger().debug("RigidBodyObject.spawn spawned new object")
-        return self.object
-
-
-# This class manages the connection between rigid bodies and blender objects
+# This class manages a list of connections between rigid bodies and blender objects
 class RigidBodyObjectList:
     def __init__(self):
         self.rigid_body_objects = set()
 
-    def add(self, param):
-        if param.__class__.__name__ == 'RigidBody':
-            # turn param in to a RigidBodyObject instance
-            param = RigidBodyObject(param)
+    def add(self, rigid_body, object=None):
+        rbo = RigidBodyObject(rigid_body, object)
+        self.rigid_body_objects.add(rbo)
+        return rbo
 
-        self.rigid_body_objects.add(param)
-        return param
-
+    # not used...
     def remove(self, rigid_body_object):
         try:
             self.rigid_body_objects.remove(rigid_body_object)
         except KeyError:
             pass
 
+    # not used...
     def object(self, rigid_body_id):
         for rbo in self.rigid_body_objects:
             if rbo.rigid_body.id == rigid_body_id:
                 return rbo.object
         return None
-
 
 
 # This class is in charge of the blender UI config panel

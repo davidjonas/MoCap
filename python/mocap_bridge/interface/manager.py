@@ -86,12 +86,19 @@ class Manager:
         rb = RigidBody().fromObject(obj)
         self.addOrUpdateRigidBody(rb)
 
-    # this
+    # this is a convenience method that register to given callback
+    # for both rigid body create and update events, and also invokes
+    # the callback for every rigid body already in the system
     def addRigidBodiesCallback(self, callback):
-        # register callback for both new and update events
+        self.addNewRigidBodyCallback()
+        # also register for rigid body update event
         self.updateRigidBodyEvent += callback
-        self.newRigidBodyEvent += callback
 
+    # this is a convenience method that register to given callback
+    # for rigid body create events, and also invokes
+    # the callback for every rigid body already in the system
+    def addNewRigidBodyCallback(self, callback):
+        self.newRigidBodyEvent += callback
         # and invoke callback for every rigid body already in the system
         for rigid_body in self.rigid_bodies:
             callback(rigid_body)
