@@ -1,9 +1,9 @@
 from mocap_bridge.utils.color_terminal import ColorTerminal
 
 try:
-    import OSC
+    from OSC import OSCServer
 except ImportError:
-    print ColorTerminal().fail("Error importing library, please install pyOSC by running: sudo pip install pyOSC")
+    print(ColorTerminal().fail("Error importing library, please install pyOSC by running: sudo pip install pyOSC"))
 
 import threading
 
@@ -28,7 +28,7 @@ class OscReader:
             self.destroy()
 
         ColorTerminal().output("Starting OSC server with host {0} and port {1}".format(self.host, self.port))
-        self.oscServer = OSC.OSCServer((self.host, self.port))
+        self.oscServer = OSCServer((self.host, self.port))
         self.oscServer.handle_timeout = self.handleTimeout
         self.oscServer.addMsgHandler('/rigidbody', self.oscRigidBodyHandler)
         ColorTerminal().success("Server running")
