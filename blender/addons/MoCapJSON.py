@@ -1,3 +1,4 @@
+# blender-addon info
 bl_info = {
     "name": "MoCap JSON Interface",
     "author": "Short Notion (Mark van de Korput)",
@@ -10,44 +11,43 @@ bl_info = {
     "tracker_url": "",
     "category": "System"}
 
-# system stuff
-import logging
-# blender stuff
+# blender python interface
 import bpy
 
+# MoCapBridge package
 from mocap_bridge.interface.manager import Manager
 from mocap_bridge.readers.json_reader import JsonReader
 
+# This method should be called by a controller in the blender object's
+# game logic and that controller should be triggered by an 'always' sensor,
+# with TRUE level triggering enabled (Pulse mode) so it gets called every game-loop iteration
 def update(controller):
     owner = controller.owner
     MoCapJson.for_owner(owner).update()
 
 
 class MoCapJson:
+    _instances_by_owner = {}
+
     def for_owner(owner):
-        if not 'mocap_json' in owner:
-            owner['mocap_json'] = MoCapJson(owner)
-        return owner['mocap_json']
+        try:
+            # Find previously creted instance
+            return MoCapJson._instances_by_owner[owner]
+        except KeyError:
+            # Create new instance
+            inst = MoCapJson(owner)
+            # Store it so it can be found next time
+            MoCapJson._instances_by_owner[owner] = inst
+            return inst
 
     def __init__(self, owner):
         self.owner = owner
-        self.manager = None
-        self.json_reader = None
-        self.config = None
-        self.setup()
-
-    def setup(self):
-        if not self.config:
-            self.config = bpy.data.objects[self.owner.name].moCapJsonConfig
-
-        if not self.manager:
-            self.manager = Manager.instance() # try to get a global manager instance
-
-        if not self.json_reader:
-            self.json_reader = JsonReader(path=self.config.file, loop=self.config.loop, sync=self.config.sync, manager=self.manager, autoStart=self.config.enabled)
+        self.config = bpy.data.objects[self.owner.name].moCapJsonConfig
+        self.manager = Manager.instance_by_ref(self.owner) # try to get a global manager instance
+        self.json_reader = JsonReader(path=self.config.file, loop=self.config.loop, sync=self.config.sync, manager=self.manager, autoStart=self.config.enabled)
 
     def update(self):
-        if self.json_reader and self.config.enabled:
+        if self.config.enabled:
             self.json_reader.update()
             # print("JSON time: {0}".format(self.json_reader.getTime()))
 

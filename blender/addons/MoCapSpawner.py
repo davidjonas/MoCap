@@ -1,3 +1,4 @@
+# blender addon info
 bl_info = {
     "name": "MoCap Spawner",
     "author": "Short Notion (Mark van de Korput)",
@@ -10,15 +11,17 @@ bl_info = {
     "tracker_url": "",
     "category": "System"}
 
+# blender python interface
 import bpy
 
+# system packages
 import logging
 import mathutils
 
+# mocap packages
 from mocap_bridge.interface.manager import Manager
 
-
-# this function should be called by a game logic controller
+# this function should be called once (only to initialize) by a game logic controller
 def create(controller):
     owner = controller.owner
     MoCapSpawner.for_owner(owner)
@@ -26,14 +29,22 @@ def create(controller):
 
 
 class MoCapSpawner:
+    _instances_by_owner = {}
+
     def for_owner(owner):
-        if not 'mocap-spawner' in owner:
-            owner['mocap-spawner'] = MoCapSpawner(owner)
-        return owner['mocap-spawner']
+        try:
+            # Find previously creted instance
+            return MoCapSpawner._instances_by_owner[owner]
+        except KeyError:
+            # Create new instance
+            inst = MoCapSpawner(owner)
+            # Store it so it can be found next time
+            MoCapSpawner._instances_by_owner[owner] = inst
+            return inst
 
     def __init__(self, owner=None):
         self.owner = owner
-        self.manager = Manager.instance() # try to get a global manager instance
+        self.manager = Manager.instance_by_ref(self.owner) # try to get a global manager instance
         self.config = bpy.data.objects[self.owner.name].moCapSpawnerConfig
         self.rigid_body_object_list = RigidBodyObjectList()
 

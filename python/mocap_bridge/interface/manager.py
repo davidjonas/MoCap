@@ -4,11 +4,23 @@ from mocap_bridge.utils.event import Event
 
 class Manager:
     _instance = None
+    _reference_instance = {}
 
-    def instance(*args, **kargs):
+    # for getting a single global instance
+    def instance():
         if not Manager._instance:
-            Manager._instance = Manager(*args, **kargs)
+            Manager._instance = Manager()
         return Manager._instance
+
+    # for creating/getting domain-specific instances
+    # ref should identify a specific domain, but can be anything
+    def instance_by_ref(ref):
+        try:
+            return Manager._reference_instance[ref]
+        except KeyError:
+            inst = Manager()
+            Manager._reference_instance[ref] = inst
+            return inst
 
     def __init__(self):
         self.rigid_bodies = {}
