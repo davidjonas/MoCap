@@ -19,7 +19,7 @@ class RigidBody(object):
     def update(self, position, orientation):
         self.position = position
         self.orientation = orientation
-        self.onUpdate()
+        self.onUpdate(self)
 
     def rename(self, name):
         self.name = name
