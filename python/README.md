@@ -10,9 +10,8 @@ Run the following command from the python folder:
 
 Run the following command from the python folder:
 
-`bin/forward_natnet [natnet_host_address] [natnet_multicast_address] [natnet_port]`
+`bin/forward_natnet [natnet_host_address] [natnet_multicast_address] [natnet_port] [osc_host] [osc_port]`
 
-It will forward through OSC to localhost ("127.0.0.1") at port 8080
 
 
 ### Record NatNet JSON data
@@ -24,4 +23,5 @@ TOFIX
 
 Run the following command from the python folder:
 
-`bin/play_recording [<path/to/file.json>]`
+`bin/play_recording [<path/to/file.json>] [osc_host] [osc_port]`
+
