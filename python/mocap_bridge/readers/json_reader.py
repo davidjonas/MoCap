@@ -133,6 +133,7 @@ class JsonReader:
         self._kill = False
         # threaded loop method will call setup
         self.thread = threading.Thread(target=self.threaded_loop)
+        self.thread.start()
 
     def stop(self):
         if self.threaded:
