@@ -16,11 +16,14 @@ class ColorTerminal(object):
             msg = prefix + msg + ColorTerminal.ENDC
         print(msg)
 
-    def warn(self, msg):
-        self.output(msg, ColorTerminal.WARNING)
+    def red(self, msg): self.output(msg, ColorTerminal.FAIL)
+    def yellow(self, msg): self.output(msg, ColorTerminal.WARNING)
+    def blue(self, msg): self.output(msg, ColorTerminal.OKBLUE)
+    def green(self, msg): self.output(msg, ColorTerminal.OKGREEN)
+    def bold(self, msg): self.output(msg, ColorTerminal.BOLD)
+    def underline(self, msg): self.output(msg, ColorTerminal.UNDERLINE)
+    def header(self, msg): self.output(msg, ColorTerminal.HEADER)
 
-    def fail(self, msg):
-        self.output(msg, ColorTerminal.FAIL)
-
-    def success(self, msg):
-        self.output(msg, ColorTerminal.OKGREEN)
+    def warn(self, msg): self.yellow(msg)
+    def fail(self, msg): self.red(msg)
+    def success(self, msg): self.output(msg, ColorTerminal.OKGREEN)

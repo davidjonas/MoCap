@@ -1,23 +1,30 @@
 #!/usr/bin/env python
 import _localpaths
 
-from mocap_bridge.natnet_pipeline import NatNetPipeline
-from mocap_bridge.live_natnet_reader import LiveNatNetReader
-from mocap_bridge.osc_natnet_writer import OSCNatNetWriter
+from mocap_bridge.interface.manager import Manager
+from mocap_bridge.readers.natnet_reader import NatnetReader
+from mocap_bridge.writers.osc_writer import OscWriter
 
 import sys
 
+natnet_host = "0.0.0.0" if len(sys.argv) < 2 else sys.argv[1]
+natnet_multicast = None if len(sys.argv) < 3 else sys.argv[2]
+natnet_port = 1511 if len(sys.argv) < 4 else sys.argv[3]
 
-host = "0.0.0.0" if len(sys.argv) < 2 else sys.argv[1]
-multicast = None if len(sys.argv) < 3 else sys.argv[2]
-port = 1511 if len(sys.argv) < 4 else sys.argv[3]
+osc_host = '127.0.0.1' if len(sys.argv) < 5 else sys.argv[4]
+osc_port = 8080 if len(sys.argv) < 6 else sys.argv[5]
 
-pipeline = NatNetPipeline(LiveNatNetReader(host, multicast, port), OSCNatNetWriter())
-pipeline.start()
 
+manager = Manager()
+writer = OscWriter(host=osc_host, port=osc_port, manager=manager)
+reader = NatnetReader(host=natnet_host, multicast=natnet_multicast, port=natnet_port, manager=manager)
+
+# execution loop
 while True:
     try:
-        pass
-    except:
-        pipeline.stop()
+        # when the reader receives new data, it will process it and feed it into the manager
+        # the manager will trigger some events when it gets new data
+        # the writer will respond to the manager's events and output information
+        reader.update()
+    except KeyboardInterrupt:
         break
