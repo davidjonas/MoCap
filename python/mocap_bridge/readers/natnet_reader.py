@@ -98,7 +98,9 @@ class NatnetReader:
     def _parse(self, packet):
         if not self.manager:
             return
+
         # print('_parse:',packet)
+
         for skeletonObj in packet.skeletons:
             skeleton = self.manager.getOrCreateSkeleton(skeletonObj.id)
             for rbObj in skeletonObj.rigid_bodies:
@@ -106,5 +108,13 @@ class NatnetReader:
                 skeleton.addOrUpdateRigidbody(rb)
 
         for rbObj in packet.rigid_bodies:
-            # print('rb', rbObj)
-            self.manager.processRigidBodyObject(rbObj)
+            obj = rbObj
+
+            if obj.__class__ == optirx.RigidBody:
+                obj = {
+                    'id': obj.id,
+                    'position': obj.position
+                    'orientation': obj.orientation
+                }
+
+            self.manager.processRigidBodyObject(obj)
