@@ -1,6 +1,6 @@
 import json
 from mocap_bridge.utils.event import Event
-
+import optirx
 class RigidBody(object):
     def __init__(self, id=None, position=None, orientation=None, name="unnamed", obj=None):
         self.id = id
@@ -47,14 +47,24 @@ class RigidBody(object):
         }
 
     def fromObject(self, obj):
-        if 'id' in obj.keys():
-            self.id = obj["id"]
-        if 'position' in obj.keys():
-            self.position = obj["position"]
-        if 'orientation' in obj.keys():
-            self.orientation = obj["orientation"]
-        if 'name' in obj.keys():
-            self.name = obj["name"]
+        # print('rb', obj)
+        # print(dir(obj))
+        # print(obj.__class__.__name__)
+
+        if obj.__class__ == optirx.RigidBody:
+            self.id = obj.id
+            self.position = obj.position
+            self.orientation = obj.orientation
+
+        if 'keys' in dir(obj):
+            if 'id' in obj.keys():
+                self.id = obj["id"]
+            if 'position' in obj.keys():
+                self.position = obj["position"]
+            if 'orientation' in obj.keys():
+                self.orientation = obj["orientation"]
+            if 'name' in obj.keys():
+                self.name = obj["name"]
         return self
 
     def toJSON(self):
