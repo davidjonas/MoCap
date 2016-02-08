@@ -34,8 +34,10 @@ class NatnetReader:
         self._disconnect()
 
     def update(self):
+        # print('NatnetReader.update')
         data = self.dsock.recv(rx.MAX_PACKETSIZE)
         packet = rx.unpack(data, version=self.version)
+
         if type(packet) is rx.SenderData:
             setVersion(packet.natnet_version)
         self._parse(packet)
@@ -96,7 +98,7 @@ class NatnetReader:
     def _parse(self, packet):
         if not self.manager:
             return
-
+        # print('_parse:',packet)
         for skeletonObj in packet.skeletons:
             skeleton = self.manager.getOrCreateSkeleton(skeletonObj.id)
             for rbObj in skeletonObj.rigid_bodies:
@@ -104,4 +106,5 @@ class NatnetReader:
                 skeleton.addOrUpdateRigidbody(rb)
 
         for rbObj in packet.rigid_bodies:
+            # print('rb', rbObj)
             self.manager.processRigidBodyObject(rbObj)
