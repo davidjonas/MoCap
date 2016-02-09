@@ -43,7 +43,7 @@ class Manager:
         return self.markers
 
     def processMarkersData(self, data):
-        print('Manager.processMarkersData:', data)
+        # print('Manager.processMarkersData:', data)
         # reset current list of markers
         self.markers = []
 
