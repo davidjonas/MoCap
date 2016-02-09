@@ -48,6 +48,9 @@ class OscWriter:
         if not self.running:
             return
 
+        for marker in self.manager.allMarkers():
+            self._sendMessage('/marker', marker.position)
+
         for rigid_body in self.manager.allRigidBodies():
             self._sendMessage("/rigidbody", rigid_body.toJSON())
 

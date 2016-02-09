@@ -34,8 +34,13 @@ class NatnetReader:
         self._disconnect()
 
     def update(self):
+        if not self.dsock:
+            return
+
+        # print('NatnetReader.update')
         data = self.dsock.recv(rx.MAX_PACKETSIZE)
         packet = rx.unpack(data, version=self.version)
+
         if type(packet) is rx.SenderData:
             setVersion(packet.natnet_version)
         self._parse(packet)
@@ -83,8 +88,8 @@ class NatnetReader:
             self.connected = True
             ColorTerminal().green("Connected")
         except:
-            print(bcolors.FAIL +"There was an error connecting"+ bcolors.ENDC)
-            self.disconnect()
+            ColorTerminal().red("There was an error connecting")
+            self._disconnect()
 
         return self.connected
 
@@ -97,6 +102,11 @@ class NatnetReader:
         if not self.manager:
             return
 
+        # print('_parse:',packet)
+        # print('parse dir:', dir(packet))
+        if 'other_markers' in dir(packet):
+            self.manager.processMarkersData(packet.other_markers)
+
         for skeletonObj in packet.skeletons:
             skeleton = self.manager.getOrCreateSkeleton(skeletonObj.id)
             for rbObj in skeletonObj.rigid_bodies:
@@ -104,4 +114,13 @@ class NatnetReader:
                 skeleton.addOrUpdateRigidbody(rb)
 
         for rbObj in packet.rigid_bodies:
-            self.manager.processRigidBodyObject(rbObj)
+            obj = rbObj
+
+            if obj.__class__ == rx.RigidBody:
+                obj = {
+                    'id': obj.id,
+                    'position': obj.position,
+                    'orientation': obj.orientation
+                }
+
+            self.manager.processRigidBodyObject(obj)
