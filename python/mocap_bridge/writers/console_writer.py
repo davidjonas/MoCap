@@ -39,6 +39,8 @@ class ConsoleWriter:
 
         line = "{0}: {1} markers, {2} rigid bodies and {3} skeletons".format(t, len(manager.markers), len(manager.rigid_bodies), len(manager.skeletons))
         print(line)
+        for marker in manager.allMarkers():
+            print(marker.position)
         self.lastUpdateTime = t
 
     def getTime(self):
