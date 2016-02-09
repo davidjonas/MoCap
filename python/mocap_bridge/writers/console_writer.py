@@ -37,7 +37,7 @@ class ConsoleWriter:
         if self.delay != None and self.lastUpdateTime != None and t < (self.lastUpdateTime + self.delay):
             return
 
-        line = "{0}: {1} rigid bodies and {2} skeletons".format(t, len(manager.rigid_bodies), len(manager.skeletons))
+        line = "{0}: {1} markers, {2} rigid bodies and {3} skeletons".format(t, len(manager.markers), len(manager.rigid_bodies), len(manager.skeletons))
         print(line)
         self.lastUpdateTime = t
 

@@ -100,6 +100,8 @@ class NatnetReader:
             return
 
         # print('_parse:',packet)
+        if 'markers' in dir(packet):
+            self.manager.processMarkersData(packet.markers)
 
         for skeletonObj in packet.skeletons:
             skeleton = self.manager.getOrCreateSkeleton(skeletonObj.id)
