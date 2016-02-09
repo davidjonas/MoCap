@@ -34,7 +34,7 @@ class OscReader:
 
         ColorTerminal().output("Starting OSC Server with host {0} and port {1}".format(self.host, self.port))
         dispatcher = Dispatcher()
-        dispatcher('/marker', self.oscMarkerHandler)
+        dispatcher.map('/marker', self.oscMarkerHandler)
         dispatcher.map("/rigidbody", self.oscRigidBodyHandler)
 
         try:

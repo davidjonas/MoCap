@@ -33,6 +33,9 @@ class JsonReader:
         self.startTime = datetime.now()
 
     def update(self):
+        if not self.manager:
+            return
+
         if self.pendingLine == None:
             data = self._nextJsonLine()
         else:
@@ -44,7 +47,6 @@ class JsonReader:
 
         # are we performing frame time-syncs?
         if self.sync:
-
             # wait until it's time for the next
             dt = self.getTime()
             if data["t"] > dt:
@@ -52,8 +54,14 @@ class JsonReader:
                 self.pendingLine = data
                 return
 
-        for rigid in data['rigidbodies']:
-            if self.manager:
+        if 'markers' in data:
+            # print('JsonReader got markers:', data['markers'])
+            for markers in data['markers']:
+                self.manager.processMarkersData(data['markers'])
+
+        if 'rigidbodies' in data:
+            # print(data['rigidbodies'])
+            for rigid in data['rigidbodies']:
                 self.manager.processRigidBodyObject({
                     'id': rigid['id'],
                     'position': rigid['p'],
@@ -133,6 +141,7 @@ class JsonReader:
         self._kill = False
         # threaded loop method will call setup
         self.thread = threading.Thread(target=self.threaded_loop)
+        self.thread.start()
 
     def stop(self):
         if self.threaded:

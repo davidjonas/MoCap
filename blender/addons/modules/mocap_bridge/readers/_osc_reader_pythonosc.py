@@ -34,6 +34,7 @@ class OscReader:
 
         ColorTerminal().output("Starting OSC Server with host {0} and port {1}".format(self.host, self.port))
         dispatcher = Dispatcher()
+        dispatcher.map('/marker', self.oscMarkerHandler)
         dispatcher.map("/rigidbody", self.oscRigidBodyHandler)
 
         try:
@@ -77,6 +78,10 @@ class OscReader:
             self.oscServer.handle_request()
             count += 1
 
+    def oscMarkerHandler(self, addr=None, data=None, tags=None, client_address=None):
+        if self.manager and data:
+            self.manager.processMarkersData([data])
+
     def oscRigidBodyHandler(self, addr=None, data=None, tags=None, client_address=None):
         # print('OscReader.oscRigidBodyHandler', addr, data)
         # readers can interface with the mocap data manager directly (most efficient)
@@ -101,6 +106,7 @@ class OscReader:
         self._kill = False
         # threaded loop method will call setup
         self.thread = threading.Thread(target=self.threaded_loop)
+        self.thread.start()
 
     def stop(self):
         # ColorTerminal().warn('OscReader-stop')
