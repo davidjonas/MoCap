@@ -44,7 +44,6 @@ class JsonReader:
 
         # are we performing frame time-syncs?
         if self.sync:
-
             # wait until it's time for the next
             dt = self.getTime()
             if data["t"] > dt:
@@ -70,7 +69,6 @@ class JsonReader:
     def getTime(self):
         if self.startTime is None:
             return 0
-
         return (datetime.now()-self.startTime).total_seconds()
 
     def _nextJsonLine(self):
@@ -115,6 +113,7 @@ class JsonReader:
         # if we're looping, start back at the beginning of the file and try again
         if self.loop:
             self.file.seek(0)
+            self.startTime = datetime.now()
             return self._readLine()
 
         # nothing (more) to read and we're not looping

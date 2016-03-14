@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+import _localpaths
+from mocap_bridge.gui.recording_player import RecordingPlayer, RecordingPlayerView
+
+class Runner:
+    def __init__(self):
+        self.setup()
+
+    def setup(self):
+        self.player_view = RecordingPlayerView()
+        self.player_view.setup()
+
+    def update(self):
+        self.player_view.player.update()
+        self.player_view.update()
+
+runner = Runner()
+while True:
+    runner.update()
