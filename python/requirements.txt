@@ -1,2 +1,3 @@
 optirx==0.3
 pyOSC==0.3.5b-5294
+python-osc==1.5
