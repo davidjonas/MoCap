@@ -4,7 +4,7 @@ from mocap_bridge.gui.recording_player import RecordingPlayer, RecordingPlayerVi
 
 class Runner:
     def __init__(self):
-        self.setup()
+        self.setup() # auto-setup
 
     def setup(self):
         self.player_view = RecordingPlayerView()
