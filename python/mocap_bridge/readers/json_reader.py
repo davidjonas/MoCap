@@ -60,8 +60,10 @@ class JsonReader:
                 })
 
     def destroy(self):
-        self.file.close()
+        if self.file:
+            self.file.close()
         self.file = None
+        self.startTime = None
 
     def setLoop(self, loop):
         self.loop = loop
@@ -148,3 +150,6 @@ class JsonReader:
             self.update()
 
         self.destroy()
+
+    def isRunning(self):
+        return self.startTime != None
