@@ -37,8 +37,16 @@ class ManagerView:
                 self.tk.update()
                 return True
             except:
+                self.destroy()
                 return False
 
+    def destroy(self):
+        self.tk = None
+
+    # calback method; gets called every time anything inside the manager changes
     def onManagerUpdate(self, manager):
-        # update
-        self.rb_count_label.configure(text=str(len(manager.allRigidBodies())))
+        if self.tk:
+            try:
+                self.rb_count_label.configure(text=str(len(manager.allRigidBodies())))
+            except:
+                self.destroy()
