@@ -5,7 +5,7 @@ from mocap_bridge.utils.event import Event
 import Tkinter
 
 class JsonReaderView:
-    def __init__(self, json_reader=None, parent=None):
+    def __init__(self, json_reader, parent=None):
         self.json_reader = json_reader
         self.parent = parent
         self.startEvent = Event()
@@ -22,16 +22,17 @@ class JsonReaderView:
         self.time_text_label = Tkinter.Label(self.frame, text="time (s)")
         self.time_value_label = Tkinter.Label(self.frame, text="0")
         self.startstop_button = Tkinter.Button(self.frame, text='Stop', command=self.onStartStopButtonClicked)
+
         if not self.json_reader.isRunning:
             self.startstop_button.configure(text='Start')
 
         # position elements
-
         self.file_text_label.grid(column=0, row=0)
         self.file_value_label.grid(column=1, row=0)
         self.time_text_label.grid(column=0, row=1)
         self.time_value_label.grid(column=1, row=1)
         self.startstop_button.grid(column=0, row=2)
+        self.startstop_button.grid(column=1, row=2)
 
         self.update()
 
@@ -39,6 +40,9 @@ class JsonReaderView:
         timeValue = str(self.json_reader.getTime())
         self.time_value_label.configure(text=timeValue)
         self.parent.after(1, self.update) # schedule next update (tkinter doesn't seem to provide a nice way to do every-iteration-updates)
+
+    def destroy(self):
+        self.frame.grid_forget()
 
     def onStartStopButtonClicked(self):
         if self.json_reader.isRunning():

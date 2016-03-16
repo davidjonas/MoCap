@@ -5,6 +5,7 @@ from mocap_bridge.gui.json_reader_view import JsonReaderView
 from mocap_bridge.readers.json_reader import JsonReader
 
 import Tkinter as tk
+import tkFileDialog
 
 class GuiApp(tk.Frame):
     def __init__(self, master=None):
@@ -14,13 +15,32 @@ class GuiApp(tk.Frame):
 
     def setup(self):
         self.master.title('MoCap')
-        self.manager_view = ManagerView(parent=self)
 
-        # self.json_reader = JsonReader("data/sampleRecording3.json", manager=self.manager_view.manager)
-        self.json_reader_view = JsonReaderView(parent=self)
-
+        # controls/buttons at the top
         self.quitButton = tk.Button(self, text='Quit', command=self.quit)
-        self.quitButton.grid()
+        self.quitButton.grid(column=0, row=0)
+
+        self.loadJsonButton = tk.Button(self, text='Open JSON File', command=self.onLoadJsonFileButtonClicked)
+        self.loadJsonButton.grid(column=1, row=0)
+
+        # subviews
+        self.manager_view = ManagerView(parent=self)
+        self._loadJsonFile("data/sampleRecording3.json")
+
+    def onLoadJsonFileButtonClicked(self):
+        file_path = tkFileDialog.askopenfile(**{})
+        if file_path:
+            self._loadJsonFile(file_path.name)
+
+    def _loadJsonFile(self, path):
+        if hasattr(self, 'json_reader') and self.json_reader:
+            self.json_reader.stop()
+            if hasattr(self, 'json_reader_view') and self.json_reader_view:
+                self.json_reader_view.destroy()
+
+        self.json_reader = JsonReader(path, manager=self.manager_view.manager)
+        self.json_reader_view = JsonReaderView(self.json_reader, parent=self)
+
         # self.update()
 
     # def update(self):
