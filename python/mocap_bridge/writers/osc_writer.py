@@ -10,15 +10,20 @@ class OscWriter:
         self.host = host
         self.port = port
 
-        self.client = OSC.OSCClient()
+        self.client = None
         self.running = False
         self.manager = manager
+
+        if self.manager != None:
+            # the event class already discards duplicates, so no need to check
+            self.manager.updateEvent += self.onUpdate
 
         if autoStart == True:
             self.start()
 
     def connect(self):
         try:
+            self.client = OSC.OSCClient()
             self.client.connect((self.host, int(self.port)))
         except OSC.OSCClientError as err:
             ColorTerminal().error("OSC connection failure: {0}".format(err))
@@ -27,15 +32,13 @@ class OscWriter:
         return True
 
     def disconnect(self):
-        self.client.close()
+        if hasattr(self, 'client') and self.client:
+            self.client.close()
+            self.client = None
 
     def start(self):
         if self.connect():
-            ColorTerminal().success("OSC client connected")
-
-        if self.manager != None:
-            # the event class already discards duplicates, so no need to check
-            self.manager.updateEvent += self.onUpdate
+            ColorTerminal().success("OSC client connected to " + self.host + ':' + str(self.port))
 
         self.running = True
 
@@ -63,3 +66,13 @@ class OscWriter:
             # ColorTerminal().warn("OSC failure: {0}".format(err))
             # no need to call connect again on the client, it will automatically
             # try to connect when we send ou next message
+
+    def configure(self, host=None, port=None):
+        if host:
+            self.host = host
+        if port:
+            self.port = port
+
+        if (host or port) and self.running:
+            self.stop()
+            self.start()

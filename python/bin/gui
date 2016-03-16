@@ -2,7 +2,9 @@
 import _localpaths
 from mocap_bridge.gui.manager_view import ManagerView
 from mocap_bridge.gui.json_reader_view import JsonReaderView
+from mocap_bridge.gui.osc_writer_view import OscWriterView
 from mocap_bridge.readers.json_reader import JsonReader
+from mocap_bridge.writers.osc_writer import OscWriter
 
 import Tkinter as tk
 import tkFileDialog
@@ -26,6 +28,13 @@ class GuiApp(tk.Frame):
         # subviews
         self.manager_view = ManagerView(parent=self)
         self._loadJsonFile("data/sampleRecording3.json")
+        self.osc_writer = OscWriter(manager=self.manager_view.manager)
+        self.osc_writer_view = OscWriterView(osc_writer=self.osc_writer, parent=self)
+
+    def update(self):
+        if self.json_reader:
+            self.json_reader.update()
+            self.after(1, self.update) # schedule next update (tkinter doesn't seem to provide a nice way to do every-iteration-updates)
 
     def onLoadJsonFileButtonClicked(self):
         file_path = tkFileDialog.askopenfile(**{})
@@ -40,11 +49,7 @@ class GuiApp(tk.Frame):
 
         self.json_reader = JsonReader(path, manager=self.manager_view.manager)
         self.json_reader_view = JsonReaderView(self.json_reader, parent=self)
-
-        # self.update()
-
-    # def update(self):
-    #     self.after(1, self.update) # schedule next update (tkinter doesn't seem to provide a nice way to to every-iteration-updates)
+        self.update()
 
 app = GuiApp()
 app.mainloop()
