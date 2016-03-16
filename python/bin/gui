@@ -16,8 +16,8 @@ class GuiApp(tk.Frame):
         self.master.title('MoCap')
         self.manager_view = ManagerView(parent=self)
 
-        self.json_reader = JsonReader("data/sampleRecording3.json", manager=self.manager_view.manager)
-        self.json_reader_view = JsonReaderView(self.json_reader, parent=self)
+        # self.json_reader = JsonReader("data/sampleRecording3.json", manager=self.manager_view.manager)
+        self.json_reader_view = JsonReaderView(parent=self)
 
         self.quitButton = tk.Button(self, text='Quit', command=self.quit)
         self.quitButton.grid()
