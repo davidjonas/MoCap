@@ -68,6 +68,14 @@ class JsonReader:
     def setLoop(self, loop):
         self.loop = loop
 
+    def setFile(self, path):
+        if self.isRunning():
+            self.stop()
+            self.path = path
+            self.start()
+        else:
+            self.path = path
+
     def getTime(self):
         if self.startTime is None:
             return 0

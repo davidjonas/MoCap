@@ -4,45 +4,27 @@ from mocap_bridge.gui.manager_view import ManagerView
 from mocap_bridge.gui.json_reader_view import JsonReaderView
 from mocap_bridge.readers.json_reader import JsonReader
 
-import Tkinter
+import Tkinter as tk
 
-class Runner:
-    def __init__(self):
-        self.setup() # auto-setup
+class GuiApp(tk.Frame):
+    def __init__(self, master=None):
+        tk.Frame.__init__(self, master)
+        self.grid()
+        self.setup()
 
     def setup(self):
-        self.tk = Tkinter.Tk()
-        self.tk.title('MoCap')
+        self.master.title('MoCap')
+        self.manager_view = ManagerView(parent=self)
 
-        self.manager_view = ManagerView(tk=self.tk)
+        self.json_reader = JsonReader("data/sampleRecording3.json", manager=self.manager_view.manager)
+        self.json_reader_view = JsonReaderView(self.json_reader, parent=self)
 
-        self.json_reader_frame = Tkinter.Frame(self.manager_view.tk, padx=10, pady=10)
-        self.json_reader_frame.grid(column=0, row=1)
+        self.quitButton = tk.Button(self, text='Quit', command=self.quit)
+        self.quitButton.grid()
+        # self.update()
 
-        self.json_file = "data/sampleRecording3.json"
-        self.json_reader = JsonReader(self.json_file, manager=self.manager_view.manager)
-        self.json_reader_view = JsonReaderView(self.json_reader, frame=self.json_reader_frame)
+    # def update(self):
+    #     self.after(1, self.update) # schedule next update (tkinter doesn't seem to provide a nice way to to every-iteration-updates)
 
-        self.status = 'running'
-
-    def update(self):
-        self.json_reader.update()
-
-        if self.tk:
-            try:
-                self.tk.update()
-            except Exception as e:
-                self.destroy()
-                return False
-
-            self.manager_view.update()
-            self.json_reader_view.update()
-
-    def destroy(self):
-        self.json_reader.stop()
-        self.tk = None
-        self.status = 'stopped'
-
-runner = Runner()
-while runner.status == 'running':
-    runner.update()
+app = GuiApp()
+app.mainloop()
