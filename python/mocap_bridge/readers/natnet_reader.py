@@ -9,12 +9,13 @@ except ImportError:
 import threading
 
 class NatnetReader:
-    def __init__(self, host='0.0.0.0', multicast=None, port=1511, manager=None, threaded=False, autoStart=True):
+    def __init__(self, host='0.0.0.0', multicast=None, port=1511, manager=None, threaded=False, readMarkers=False, autoStart=True):
         self.host = host
         self.multicast = multicast
         self.port = port
         self.manager = manager
         self.threaded = threaded
+        self.readMarkers = readMarkers
 
         self.version = (2, 7, 0, 0)
         self.connected = False
@@ -104,7 +105,7 @@ class NatnetReader:
 
         # print('_parse:',packet)
         # print('parse dir:', dir(packet))
-        if 'other_markers' in dir(packet):
+        if self.readMarkers and 'other_markers' in dir(packet):
             self.manager.processMarkersData(packet.other_markers)
 
         for skeletonObj in packet.skeletons:
