@@ -1,3 +1,4 @@
+from mocap_bridge.interface.marker import Marker
 from mocap_bridge.interface.rigid_body import RigidBody
 from mocap_bridge.interface.skeleton import Skeleton
 from mocap_bridge.utils.event import Event
@@ -23,15 +24,36 @@ class Manager:
             return inst
 
     def __init__(self):
+        self.markers = []
         self.rigid_bodies = {}
         self.skeletons = {}
 
         # Events
         self.updateEvent = Event()
+        self.updateMarkersEvent = Event()
         self.updateRigidBodyEvent = Event()
         self.newRigidBodyEvent = Event()
 
         self.startTime = None
+
+    # === ===
+    # Markers
+    # === ===
+    def allMarkers(self):
+        return self.markers
+
+    def processMarkersData(self, data):
+        # print('Manager.processMarkersData:', data)
+        # reset current list of markers
+        self.markers = []
+
+        # loop over received data (position values) and convert them to marker instances
+        for pos in data:
+            self.markers += [Marker(pos)]
+
+        # notify the world
+        self.updateMarkersEvent(self)
+        self.updateEvent(self)
 
     # === === ===
     # RigidBodies

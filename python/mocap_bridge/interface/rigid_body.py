@@ -1,5 +1,6 @@
 import json
 from mocap_bridge.utils.event import Event
+from mocap_bridge.utils.color_terminal import ColorTerminal
 
 class RigidBody(object):
     def __init__(self, id=None, position=None, orientation=None, name="unnamed", obj=None):
@@ -47,6 +48,10 @@ class RigidBody(object):
         }
 
     def fromObject(self, obj):
+        if not 'keys' in dir(obj):
+            ColorTerminal().red('RigidBody.fromObject received non-dict object')
+            return
+
         if 'id' in obj.keys():
             self.id = obj["id"]
         if 'position' in obj.keys():
@@ -55,6 +60,7 @@ class RigidBody(object):
             self.orientation = obj["orientation"]
         if 'name' in obj.keys():
             self.name = obj["name"]
+
         return self
 
     def toJSON(self):

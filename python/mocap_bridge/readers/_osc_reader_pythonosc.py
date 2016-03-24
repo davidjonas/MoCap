@@ -34,6 +34,7 @@ class OscReader:
 
         ColorTerminal().output("Starting OSC Server with host {0} and port {1}".format(self.host, self.port))
         dispatcher = Dispatcher()
+        dispatcher.map('/marker', self.oscMarkerHandler)
         dispatcher.map("/rigidbody", self.oscRigidBodyHandler)
 
         try:
@@ -76,6 +77,10 @@ class OscReader:
         while not self.oscServer.timed_out and count < limit:
             self.oscServer.handle_request()
             count += 1
+
+    def oscMarkerHandler(self, addr=None, data=None, tags=None, client_address=None):
+        if self.manager and data:
+            self.manager.processMarkersData([data])
 
     def oscRigidBodyHandler(self, addr=None, data=None, tags=None, client_address=None):
         # print('OscReader.oscRigidBodyHandler', addr, data)

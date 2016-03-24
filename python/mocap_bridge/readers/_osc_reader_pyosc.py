@@ -30,6 +30,7 @@ class OscReader:
         ColorTerminal().output("Starting OSC server with host {0} and port {1}".format(self.host, self.port))
         self.oscServer = OSCServer((self.host, self.port))
         self.oscServer.handle_timeout = self.handleTimeout
+        self.oscServer.addMsgHandler('/marker', self.oscMarkerHandler)
         self.oscServer.addMsgHandler('/rigidbody', self.oscRigidBodyHandler)
         ColorTerminal().success("Server running")
 
@@ -57,6 +58,10 @@ class OscReader:
         while not self.oscServer.timed_out and count < limit:
             self.oscServer.handle_request()
             count += 1
+
+    def oscMarkerHandler(self, addr, tags, data, client_address):
+        if self.manager:
+            self.manager.processMarkersData([data[0]])
 
     def oscRigidBodyHandler(self, addr, tags, data, client_address):
         # readers can interface with the mocap data manager directly (most efficient)
