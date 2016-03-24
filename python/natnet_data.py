@@ -9,10 +9,10 @@ class RigidBody(object):
             self.orientation = orientation
             self.name = name
         elif obj is not None:
-            self.id = obj["id"]
-            self.position = obj["position"]
-            self.orientation = obj["orientation"]
-            self.name = obj["name"]
+            self.id = obj.id
+            self.position = obj.position
+            self.orientation = obj.orientation
+            self.name = "RigidBody"
         self.onUpdate = Event()
 
     def update(self, position, orientation):

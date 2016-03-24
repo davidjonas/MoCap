@@ -11,7 +11,7 @@ import json
 
 class LiveNatnetReader(NatNetReader):
     def __init__(self, host, multicast, port):
-        super(LiveNatNetReader, self).__init__()
+        super(LiveNatnetReader, self).__init__()
         self.host = host
         self.multicast = multicast
         self.port = port
@@ -34,6 +34,7 @@ class LiveNatnetReader(NatNetReader):
         except:
             self.connected = False
             print(bcolors.FAIL +"There was an error connecting"+ bcolors.ENDC)
+            raise
             self.connectionLost()
 
         return self.connected
