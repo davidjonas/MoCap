@@ -22,6 +22,7 @@ class NatnetReader:
         self.connected = False
         self.dsock = None
         self.connectionLostEvent = Event()
+        self.connectEvent = Event()
 
         self.thread = None
         self._kill = False
@@ -69,6 +70,16 @@ class NatnetReader:
         else:
             self.destroy()
 
+    def configure(self, host=None, multicast=None, port=None):
+        if host: self.host = host
+        if multicast: self.multicast = multicast
+        if port: self.port = port
+
+        # if connection is active; reconnect with new configuration
+        if (host or port or multicast) and self.connected:
+            self.stop()
+            self.start()
+
     def _threaded_main(self):
         self.setup()
 
@@ -83,11 +94,13 @@ class NatnetReader:
         try:
             if self.host is None:
                 self.dsock = rx.mkdatasock() #Connecting to localhost
-            elif self.multicast is not None and self.port is not None:
+            elif self.multicast is not None and self.multicast is not '' and self.port is not None:
                 self.dsock = rx.mkdatasock(ip_address=self.host, multicast_address=self.multicast, port=int(self.port)) #Connecting to multicast address
             else:
                 self.dsock = rx.mkdatasock(ip_address=self.host, port=int(self.port)) # Connecting to IP address
+
             self.connected = True
+            self.connectEvent(self)
             ColorTerminal().green("Connected")
         except:
             ColorTerminal().red("There was an error connecting")
@@ -98,7 +111,8 @@ class NatnetReader:
     def _disconnect(self):
         self.dsock = None
         self.connected = False
-        self.connectionLostEvent()
+        self.connectionLostEvent(self)
+        ColorTerminal().green("Disconnected")
 
     def _parse(self, packet):
         if not self.manager:
