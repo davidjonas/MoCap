@@ -1,4 +1,5 @@
 from mocap_bridge.utils.color_terminal import ColorTerminal
+from mocap_bridge.utils.event import Event
 
 try:
     import OSC
@@ -13,11 +14,15 @@ class OscWriter:
 
         self.client = None
         self.running = False
+        self.connected = False
         self.setManager(manager)
 
         if self.manager != None:
             # the event class already discards duplicates, so no need to check
             self.manager.updateEvent += self.onUpdate
+
+        self.connectEvent = Event()
+        self.disconnectEvent = Event()
 
         if autoStart == True:
             self.start()
@@ -33,12 +38,16 @@ class OscWriter:
             ColorTerminal().error("OSC connection failure: {0}".format(err))
             return False
 
+        self.connected = True
+        self.connectEvent(self)
         return True
 
     def disconnect(self):
         if hasattr(self, 'client') and self.client:
             self.client.close()
             self.client = None
+            self.connected = False
+            self.disconnectEvent(self)
 
     def setManager(self, manager):
         if hasattr(self, 'manager') and self.manager:
