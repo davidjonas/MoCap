@@ -75,11 +75,12 @@ class Manager(BatchesMixin):
         self.startTime = None
 
     def finishBatch(self, batch):
+        b = self.batch(batch)
+
         if len(b['markers']) > 0:
             self.markers = b['markers']
             self.updateMarkersEvent(self)
 
-        b = self.batch(batch)
         for rb in b['added_rigid_bodies']:
             self.newRigidBodyEvent(rb)
         for rb in b['updated_rigid_bodies']:
@@ -101,7 +102,7 @@ class Manager(BatchesMixin):
         # reset current list of markers
         self.markers = []
 
-        if batch
+        if batch:
             batch = self.batch(batch) # convert name into batch data container
             # loop over received data (position values) and convert them to marker instances
             for pos in data:
