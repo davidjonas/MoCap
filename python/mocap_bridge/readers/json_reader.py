@@ -1,5 +1,6 @@
 from mocap_bridge.utils.color_terminal import ColorTerminal
 from mocap_bridge.interface.manager import Manager
+from mocap_bridge.utils.event import Event
 
 import json
 import threading
@@ -25,6 +26,10 @@ class JsonReader:
         self.pendingLine = None
         self.startTime = None
 
+        self.startEvent = Event()
+        self.stopEvent = Event()
+        self.updateEvent = Event()
+
         if autoStart == True:
             self.start()
 
@@ -36,6 +41,7 @@ class JsonReader:
             ColorTerminal().fail("Could not open file %s" % self.path)
 
         self.startTime = datetime.now()
+        self.startEvent(self)
 
     def update(self):
         if not self.manager:
@@ -76,12 +82,21 @@ class JsonReader:
 
         # current frame imported, trigger notifications
         self.manager.finishBatch(data['t'])
+        self.updateEvent(self)
 
     def destroy(self):
         if self.file:
             self.file.close()
         self.file = None
         self.startTime = None
+        self.stopEvent(self)
+
+    def configure(self, path=None):
+        if path: self.path = path
+
+        if path and self.isRunning():
+            self.stop()
+            self.start()
 
     def setLoop(self, loop):
         self.loop = loop
