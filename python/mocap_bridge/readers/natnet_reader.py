@@ -21,8 +21,11 @@ class NatnetReader:
         self.version = (2, 7, 0, 0)
         self.connected = False
         self.dsock = None
+        self.connection_status = None
+
         self.connectionLostEvent = Event()
         self.connectEvent = Event()
+        self.connectionStatusUpdateEvent = Event()
 
         self.thread = None
         self._kill = False
@@ -41,12 +44,26 @@ class NatnetReader:
             return
 
         # print('NatnetReader.update')
-        data = self.dsock.recv(rx.MAX_PACKETSIZE)
-        packet = rx.unpack(data, version=self.version)
+        data = None
 
-        if type(packet) is rx.SenderData:
-            setVersion(packet.natnet_version)
-        self._parse(packet)
+        try:
+            data = self.dsock.recv(rx.MAX_PACKETSIZE)
+
+            if self.connection_status != None:
+                self.connection_status = None
+                self.connectionStatusUpdateEvent(self)
+        except Exception as e:
+            # error: [Errno 35] Resource temporarily unavailable
+            # print('socket receive err: ', e.strerror)
+            if self.connection_status != e.strerror:
+                self.connection_status = e.strerror
+                self.connectionStatusUpdateEvent(self)
+
+        if data:
+            packet = rx.unpack(data, version=self.version)
+            if type(packet) is rx.SenderData:
+                setVersion(packet.natnet_version)
+            self._parse(packet)
 
     def start(self):
         if not self.threaded:
@@ -99,12 +116,14 @@ class NatnetReader:
             else:
                 self.dsock = rx.mkdatasock(ip_address=self.host, port=int(self.port)) # Connecting to IP address
 
+            self.dsock.setblocking(0)
             self.connected = True
             self.connectEvent(self)
             ColorTerminal().green("Connected")
         except:
             ColorTerminal().red("There was an error connecting")
             self._disconnect()
+
 
         return self.connected
 

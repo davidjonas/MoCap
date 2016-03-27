@@ -47,6 +47,7 @@ class NatnetReaderView:
 
             self.reader.connectEvent += self.onConnect
             self.reader.connectionLostEvent += self.onDisconnect
+            self.reader.connectionStatusUpdateEvent += self.onConnectionStatusUpdate
 
             self.updateStatus(self.reader)
 
@@ -74,11 +75,22 @@ class NatnetReaderView:
     def onDisconnect(self, reader):
         self.updateStatus(reader)
 
+    def onConnectionStatusUpdate(self, reader):
+        self.updateStatus(reader)
+
     def updateStatus(self, reader):
-        if reader.connected == True:
-            if reader.multicast:
-                self.status_label.config(text='Connected to '+str(reader.host)+'@'+str(reader.port)+' ('+reader.multicast+')')
-            else:
-                self.status_label.config(text='Connected to '+str(reader.host)+'@'+str(reader.port))
-        else:
+        if reader.connected == False:
             self.status_label.config(text='Disconnected')
+            return
+
+        if reader.connection_status != None:
+            self.status_label.config(text=self.connectionInfo(reader) + '-' + reader.connection_status)
+            return
+
+        self.status_label.config(text=self.connectionInfo(reader))
+
+    def connectionInfo(self, reader):
+        if reader.multicast:
+            return 'Connected to '+str(reader.host)+'@'+str(reader.port)+' ('+reader.multicast+')'
+
+        return 'Connected to '+str(reader.host)+'@'+str(reader.port)
