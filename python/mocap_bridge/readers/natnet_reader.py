@@ -9,13 +9,14 @@ except ImportError:
 import threading
 
 class NatnetReader:
-    def __init__(self, host='0.0.0.0', multicast=None, port=1511, manager=None, threaded=False, readMarkers=False, autoStart=True):
+    def __init__(self, host='0.0.0.0', multicast=None, port=1511, manager=None, threaded=False, readMarkers=False, ingestSkeletonRigidBodies=False, autoStart=True):
         self.host = host
         self.multicast = multicast
         self.port = port
         self.manager = manager
         self.threaded = threaded
         self.readMarkers = readMarkers
+        self.ingestSkeletonRigidBodies = ingestSkeletonRigidBodies
 
         self.version = (2, 7, 0, 0)
         self.connected = False
@@ -106,22 +107,31 @@ class NatnetReader:
         # print('_parse:',packet)
         # print('parse dir:', dir(packet))
         if self.readMarkers and 'other_markers' in dir(packet):
-            self.manager.processMarkersData(packet.other_markers)
+            self.manager.processMarkersData(packet.other_markers, 'NatnetReader')
 
-        for skeletonObj in packet.skeletons:
-            skeleton = self.manager.getOrCreateSkeleton(skeletonObj.id)
-            for rbObj in skeletonObj.rigid_bodies:
-                rb = RigidBody(obj=rbObj)
-                skeleton.addOrUpdateRigidbody(rb)
+        self._ingestRigidBodyData(packet.rigid_bodies, 'NatnetReader')
+        self._ingestSkeletonData(packet.skeletons, 'NatnetReader')
+        self.manager.finishBatch('NatnetReader')
 
-        for rbObj in packet.rigid_bodies:
-            obj = rbObj
+    def _ingestSkeletonData(self, skData, batch=None):
+        # SKELETONS don't hold rigid bodies anymore (just creates duplicate data
+        # as all those rigid bodies are already in the main system)
+        # for skeletonObj in packet.skeletons:
+        #     skeleton = self.manager.getOrCreateSkeleton(skeletonObj.id)
+        #     for rbObj in skeletonObj.rigid_bodies:
+        #         rb = RigidBody(obj=rbObj)
+        #         skeleton.addOrUpdateRigidbody(rb)
 
-            if obj.__class__ == rx.RigidBody:
-                obj = {
-                    'id': obj.id,
-                    'position': obj.position,
-                    'orientation': obj.orientation
-                }
+        for skeletonObj in skData:
+            # get rigid body IDs for current skeleton
+            rigidBodyIds = map(lambda rb: rb.id, skeletonObj.rigid_bodies)
+            # ingest (create or update) skeleton
+            self.manager.processSkeletonObject({id: skeletonObj.id, rigid_body_ids: rigidBodyIds})
+            # ingest skeleton's rigid bodies, only when enabled (might contain the same rigid bodies as packet's root level)
+            if self.ingestSkeletonRigidBodies:
+                self._ingestRigidBodyData(self.skeletonObj.rigid_bodies, batch)
 
-            self.manager.processRigidBodyObject(obj)
+    def _ingestRigidBodyData(self, rbData, batch=None):
+        for rbObj in rbData:
+            # ingest (create or update) rigid body
+            self.manager.processRigidBodyObject(rbObj, batch)

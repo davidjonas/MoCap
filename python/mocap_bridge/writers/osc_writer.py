@@ -5,6 +5,7 @@ try:
 except ImportError:
     ColorTerminal().fail("Error importing library, please install pyOSC by running: sudo pip install pyOSC")
 
+
 class OscWriter:
     def __init__(self, host="127.0.0.1", port=8080, manager=None, autoStart=True):
         self.host = host
@@ -12,7 +13,7 @@ class OscWriter:
 
         self.client = None
         self.running = False
-        self.manager = manager
+        self.setManager(manager)
 
         if self.manager != None:
             # the event class already discards duplicates, so no need to check
@@ -20,6 +21,9 @@ class OscWriter:
 
         if autoStart == True:
             self.start()
+
+    def __del__(self):
+        self.stop()
 
     def connect(self):
         try:
@@ -35,6 +39,15 @@ class OscWriter:
         if hasattr(self, 'client') and self.client:
             self.client.close()
             self.client = None
+
+    def setManager(self, manager):
+        if hasattr(self, 'manager') and self.manager:
+            self.manager.updateEvent -= self.onUpdate
+
+        self.manager = manager
+
+        if self.manager: # could also be None
+            self.manager.updateEvent += self.onUpdate
 
     def start(self):
         if self.connect():
