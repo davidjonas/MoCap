@@ -1,3 +1,5 @@
+from mocap_bridge.utils.color_terminal import ColorTerminal
+
 class Event:
     def __init__(self):
         self.handlers = set()
@@ -10,7 +12,9 @@ class Event:
         try:
             self.handlers.remove(handler)
         except:
-            raise ValueError("Handler is not handling this event, so cannot unhandle it.")
+            # raise ValueError("Handler is not handling this event, so cannot unhandle it.")
+            ColorTerminal().red('Event.unhandle got unknown handler')
+
         return self
 
     def fire(self, *args, **kargs):

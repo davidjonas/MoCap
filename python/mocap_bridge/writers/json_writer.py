@@ -6,13 +6,10 @@ from datetime import datetime
 class JsonWriter:
     def __init__(self, path=None, manager=None, recordRigidBodies=True, recordMarkers=True, autoStart=True):
         # params
-        self.path = path
+        self.setPath(path)
         self.manager = manager
         self.recordRigidBodies = recordRigidBodies
         self.recordMarkers = recordMarkers
-
-        if self.path == None:
-            self.setDefaultPath()
 
         # attributes
         self.startTime = None
@@ -21,6 +18,7 @@ class JsonWriter:
 
         self.startEvent = Event()
         self.stopEvent = Event()
+        self.frameEvent = Event()
 
         if autoStart == True:
             self.start()
@@ -51,7 +49,7 @@ class JsonWriter:
             self.file.close()
             self.file = None
 
-        self.startTime
+        self.startTime = None
         self.stopEvent(self)
 
     def isRunning(self):
@@ -70,11 +68,15 @@ class JsonWriter:
         # but together they are not wrapped inside an element (or comma seperated)
         self.file.write(data+"\n")
         self.recordedFrames = self.recordedFrames+1
-        print("[JSONLink] recorded "+str(self.recordedFrames)+" frames in "+str(dt)+" seconds ("+str(self.recordedFrames/dt)+" fps)")
+        self.frameEvent(self)
+        # print("[JSONLink] recorded "+str(self.recordedFrames)+" frames in "+str(dt)+" seconds ("+str(self.recordedFrames/dt)+" fps)")
 
-    def setDefaultPath(self):
+    def setPath(self, path=None):
         # default path: timestamped natnet_<timestamp>.json
-        self.path = "data/natnet_"+datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".json"
+        if path and path != '':
+            self.path = path
+        else:
+            self.path = "data/natnet_"+datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".json"
 
     def _frameJson(self, timestamp):
         data = {
