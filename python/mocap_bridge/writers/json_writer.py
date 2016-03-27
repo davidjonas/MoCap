@@ -1,3 +1,5 @@
+from mocap_bridge.utils.event import Event
+
 import json
 from datetime import datetime
 
@@ -10,13 +12,15 @@ class JsonWriter:
         self.recordMarkers = recordMarkers
 
         if self.path == None:
-            # default path: timestamped natnet_<timestamp>.json
-            self.path = "data/natnet_"+datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".json"
+            self.setDefaultPath()
 
         # attributes
         self.startTime = None
         self.recordedFrames = 0
         self.file = None
+
+        self.startEvent = Event()
+        self.stopEvent = Event()
 
         if autoStart == True:
             self.start()
@@ -30,6 +34,7 @@ class JsonWriter:
         self.file.write('# FORMAT: each line in the file represents a frame of natnet data and should be parsed independently from the other lines\n')
 
         self.startTime = datetime.now()
+        self.startEvent(self)
 
         # register manager update callback
         if self.manager != None:
@@ -46,6 +51,12 @@ class JsonWriter:
             self.file.close()
             self.file = None
 
+        self.startTime
+        self.stopEvent(self)
+
+    def isRunning(self):
+        return self.startTime != None
+
     def onManagerUpdate(self, manager):
         # we'll need an open output file handle, if we don't have it; abort
         if not self.file:
@@ -60,6 +71,10 @@ class JsonWriter:
         self.file.write(data+"\n")
         self.recordedFrames = self.recordedFrames+1
         print("[JSONLink] recorded "+str(self.recordedFrames)+" frames in "+str(dt)+" seconds ("+str(self.recordedFrames/dt)+" fps)")
+
+    def setDefaultPath(self):
+        # default path: timestamped natnet_<timestamp>.json
+        self.path = "data/natnet_"+datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".json"
 
     def _frameJson(self, timestamp):
         data = {

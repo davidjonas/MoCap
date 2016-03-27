@@ -7,6 +7,8 @@ from mocap_bridge.writers.osc_writer import OscWriter
 from mocap_bridge.gui.osc_writer_view import OscWriterView
 from mocap_bridge.readers.natnet_reader import NatnetReader
 from mocap_bridge.gui.natnet_reader_view import NatnetReaderView
+from mocap_bridge.writers.json_writer import JsonWriter
+from mocap_bridge.gui.json_writer_view import JsonWriterView
 
 import Tkinter as tk
 
@@ -30,7 +32,9 @@ class GuiApp(tk.Frame):
         self.osc_writer = OscWriter(manager=self.manager_view.manager, autoStart=False)
         self.osc_writer_view = OscWriterView(osc_writer=self.osc_writer, parent=self)
         self.json_reader = JsonReader(path='data/sampleRecording3.json', manager=self.manager_view.manager, autoStart=False)
-        self.json_reader_view = JsonReaderView(self.json_reader)
+        self.json_reader_view = JsonReaderView(self.json_reader, parent=self)
+        self.json_writer = JsonWriter(manager=self.manager_view.manager, autoStart=False)
+        self.json_writer_view = JsonWriterView(self.json_writer, parent=self)
 
         self.update()
 
