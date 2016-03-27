@@ -9,7 +9,6 @@ from mocap_bridge.readers.natnet_reader import NatnetReader
 from mocap_bridge.gui.natnet_reader_view import NatnetReaderView
 
 import Tkinter as tk
-import tkFileDialog
 
 class GuiApp(tk.Frame):
     def __init__(self, master=None):
@@ -24,35 +23,20 @@ class GuiApp(tk.Frame):
         self.quitButton = tk.Button(self, text='Quit', command=self.quit)
         self.quitButton.grid(column=0, row=0)
 
-        self.loadJsonButton = tk.Button(self, text='Open JSON File', command=self.onLoadJsonFileButtonClicked)
-        self.loadJsonButton.grid(column=1, row=0)
-
         # subviews
         self.manager_view = ManagerView(parent=self)
         self.natnet_reader_view = NatnetReaderView(parent=self)
-        self._loadJsonFile("data/sampleRecording3.json")
         self.osc_writer = OscWriter(manager=self.manager_view.manager)
         self.osc_writer_view = OscWriterView(osc_writer=self.osc_writer, parent=self)
+        self.json_reader = JsonReader(path='data/sampleRecording3.json', manager=self.manager_view.manager, autoStart=False)
+        self.json_reader_view = JsonReaderView(self.json_reader)
+
+        self.update()
 
     def update(self):
         if self.json_reader:
             self.json_reader.update()
             self.after(1, self.update) # schedule next update (tkinter doesn't seem to provide a nice way to do every-iteration-updates)
-
-    def onLoadJsonFileButtonClicked(self):
-        file_path = tkFileDialog.askopenfile(**{})
-        if file_path:
-            self._loadJsonFile(file_path.name)
-
-    def _loadJsonFile(self, path):
-        if hasattr(self, 'json_reader') and self.json_reader:
-            self.json_reader.stop()
-            if hasattr(self, 'json_reader_view') and self.json_reader_view:
-                self.json_reader_view.destroy()
-
-        self.json_reader = JsonReader(path, manager=self.manager_view.manager)
-        self.json_reader_view = JsonReaderView(self.json_reader, parent=self)
-        self.update()
 
 app = GuiApp()
 app.mainloop()
