@@ -2,7 +2,7 @@
 
 To use MoCap in your blender project, copy all the contents of the blender/addons folder in this repository to the blender addons folder on your computer.
 
-Location blender addons folder on a mac (for blender version 2.75):
+Location of the blender addons folder on a mac (for blender version 2.75):
 `/Users/<username>/Library/Application Support/Blender/2.75/scripts/addons`
 
 This will add the following python logic to your blender:
@@ -11,8 +11,8 @@ This will add the following python logic to your blender:
 * MoCapSpawner addon
 * MoCapOSC addon
 * MoCapJSON addon
-* mocap_bridge python package - required by all the MoCap* addons
-* pythonosc package - extracted from the python-osc package, required by the MoCapOSC addon
+* (mocap_bridge python package - required by all the MoCap* addons)
+* (pythonosc package - extracted from the python-osc package, required by the MoCapOSC addon)
 
 Each of the addons has to be enabled File > User Preferences > Add-ons
 
@@ -28,10 +28,7 @@ To use it;
   * doesn't matter what kind of object, you'll probably want to use an 'empty' object
 * enable MoCap OSC in the object panel
 * configure MoCap OSC with a host (ip-address) and port for the incoming OSC data
-* create a python game-logic controller for the object
-* set the controller's script type (or mode) to 'module' (not 'script')
-* set the controller's value to `MoCapOSC.update`
-* hook the controller up to an 'Always sensor' with TRUE level triggering enabled
+* In the MoCap OSC object panel click on the 'Configure' button (unless it already says: "Game Logic: OK")
 
 
 ### MoCapJSON blender addon
@@ -45,10 +42,7 @@ To use it;
   * doesn't matter what kind of object, you'll probably want to use an 'empty' object
 * enable MoCap JSON in the object panel
 * configure MoCap JSON with a file path
-* create a python game-logic controller for the object
-* set the controller's script type (or mode) to 'module' (not 'script')
-* set the controller's value to `MoCapJSON.update`
-* hook the controller up to an 'Always sensor' with TRUE level triggering enabled
+* In the MoCap JSON object panel click on the 'Configure' button (unless it already says: "Game Logic: OK")
 
 
 ### MoCapSpawner blender addon
@@ -64,12 +58,5 @@ To use it;
   * all the spawned objects are created as a child of this object so their positions and orientations will be relative to this object's position and orientation
 * enable MoCap Spawner in the object panel
 * specify the name of the template object from step 2
-* create a python game-logic controller for the object
-* set the controller's script type (or mode) to 'module' (not 'script')
-* set the controller's value to `MoCapSpawner.create`
-* hook the controller up to an 'Always sensor' with both TRUE level triggering and FALSE level triggering disabled (no pulse mode)
-* start the game engine (Game > Start Game Engine)
-
-
-
-
+* In the MoCap Spawner object panel click on the 'Configure' button (unless it already says: "Game Logic: OK")
+* start the game engine (Game > Start Game Engine, or hit 'P' while your mouse is on the 3D View)
