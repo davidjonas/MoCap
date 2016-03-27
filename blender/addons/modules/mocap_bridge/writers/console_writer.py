@@ -6,15 +6,12 @@ from datetime import datetime
 class ConsoleWriter:
     def __init__(self, manager=None, delay=0.5, autoStart=True):
         # params
-        self.manager=manager
+        self.setManager(manager)
         self.delay=delay
 
         # attributes
         self.startTime = None
         self.lastUpdateTime = None
-
-        if self.manager != None:
-            self.manager.updateEvent += self.onUpdate
 
         if autoStart == True:
             self.start()
@@ -24,6 +21,15 @@ class ConsoleWriter:
 
     def stop(self):
         self.startTime = None
+
+    def setManager(self, manager):
+        if hasattr(self, 'manager') and self.manager:
+            self.manager.updateEvent -= self.onUpdate
+
+        self.manager = manager
+
+        if self.manager: # could also be None
+            self.manager.updateEvent += self.onUpdate
 
     def isRunning(self):
         return self.startTime != None

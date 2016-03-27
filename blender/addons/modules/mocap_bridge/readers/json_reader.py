@@ -1,4 +1,5 @@
 from mocap_bridge.utils.color_terminal import ColorTerminal
+from mocap_bridge.interface.manager import Manager
 
 import json
 import threading
@@ -12,6 +13,10 @@ class JsonReader:
         self.sync = sync
         self.threaded = threaded
         self.manager = manager
+
+        # we'll create our own manager instance if we didn't get one
+        if not self.manager:
+            self.manager = Manager()
 
         # attributes
         self.file = None
@@ -57,28 +62,41 @@ class JsonReader:
         if 'markers' in data:
             # print('JsonReader got markers:', data['markers'])
             for markers in data['markers']:
-                self.manager.processMarkersData(data['markers'])
+                self.manager.processMarkersData(data['markers'], batch=data['t'])
 
         if 'rigidbodies' in data:
-            # print(data['rigidbodies'])
             for rigid in data['rigidbodies']:
                 self.manager.processRigidBodyObject({
                     'id': rigid['id'],
                     'position': rigid['p'],
                     'orientation': rigid['r']
-                })
+                }, batch=data['t'])
+
+        # TODO; skeletons?
+
+        # current frame imported, trigger notifications
+        self.manager.finishBatch(data['t'])
 
     def destroy(self):
-        self.file.close()
+        if self.file:
+            self.file.close()
         self.file = None
+        self.startTime = None
 
     def setLoop(self, loop):
         self.loop = loop
 
+    def setFile(self, path):
+        if self.isRunning():
+            self.stop()
+            self.path = path
+            self.start()
+        else:
+            self.path = path
+
     def getTime(self):
         if self.startTime is None:
             return 0
-
         return (datetime.now()-self.startTime).total_seconds()
 
     def _nextJsonLine(self):
@@ -123,6 +141,7 @@ class JsonReader:
         # if we're looping, start back at the beginning of the file and try again
         if self.loop:
             self.file.seek(0)
+            self.startTime = datetime.now()
             return self._readLine()
 
         # nothing (more) to read and we're not looping
@@ -157,3 +176,6 @@ class JsonReader:
             self.update()
 
         self.destroy()
+
+    def isRunning(self):
+        return self.startTime != None
