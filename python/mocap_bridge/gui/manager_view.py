@@ -13,8 +13,7 @@ class ManagerView:
         if self.manager == None:
             self.manager = Manager()
 
-
-        self.frame = Tkinter.Frame(self.parent, padx=10, pady=10)
+        self.frame = Tkinter.LabelFrame(self.parent, text='System', padx=10, pady=10)
         self.frame.grid() #column=0, row=0)
 
         # create gui-elements

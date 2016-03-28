@@ -14,7 +14,7 @@ import Tkinter as tk
 
 class GuiApp(tk.Frame):
     def __init__(self, master=None):
-        tk.Frame.__init__(self, master)
+        tk.Frame.__init__(self, master, padx=10, pady=10)
         self.grid()
         self.setup()
 

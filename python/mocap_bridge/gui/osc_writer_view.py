@@ -14,7 +14,7 @@ class OscWriterView:
 
     def setup(self):
         # create gui-elements
-        self.frame = tk.Frame(self.parent, padx=10, pady=10)
+        self.frame = tk.LabelFrame(self.parent, text='OSC Forwarding', padx=10, pady=10)
         self.frame.grid()
 
         self.host_label = tk.Label(self.frame, text="OSC Host")
@@ -32,7 +32,7 @@ class OscWriterView:
         self.port_entry.grid(column=3, row=0)
         self.connect_button.grid(column=4, row=0)
         self.disconnect_button.grid(column=5, row=0)
-        self.status_label.grid(column=6, row=0)
+        self.status_label.grid(column=0, row=1, columnspan=6)
 
         # initialize
         if self.osc_writer:

@@ -13,27 +13,19 @@ class JsonReaderView:
 
     def setup(self):
         # create gui-elements
-        self.frame = Tkinter.Frame(self.parent, padx=10, pady=10)
+        self.frame = Tkinter.LabelFrame(self.parent, text='Playback', padx=10, pady=10)
         self.frame.grid()
 
-        self.file_text_label = Tkinter.Label(self.frame, text="JSON File")
-        self.file_value_label = Tkinter.Label(self.frame, text=self.json_reader.path)
-        self.time_text_label = Tkinter.Label(self.frame, text="time (s)")
-        self.time_value_label = Tkinter.Label(self.frame, text="0")
-        self.startstop_button = Tkinter.Button(self.frame, text='Stop', command=self.onStartStopButtonClicked)
-
-        if not self.json_reader.isRunning:
-            self.startstop_button.configure(text='Start')
-
-        self.loadJsonButton = Tkinter.Button(self.frame, text='Load JSON File', command=self.onLoadJsonFileButton)
+        self.loadJsonButton = Tkinter.Button(self.frame, text='Load other JSON File', command=self.onLoadJsonFileButton)
+        self.file_label = Tkinter.Label(self.frame, text=self.json_reader.path)
+        self.startstop_button = Tkinter.Button(self.frame, text='Play', command=self.onStartStopButtonClicked)
+        self.time_label = Tkinter.Label(self.frame, text="time: 0s")
 
         # position elements
-        self.file_text_label.grid(column=0, row=0)
-        self.file_value_label.grid(column=1, row=0)
-        self.time_text_label.grid(column=2, row=0)
-        self.time_value_label.grid(column=3, row=0)
-        self.startstop_button.grid(column=4, row=0)
-        self.loadJsonButton.grid(column=5, row=0)
+        self.loadJsonButton.grid(column=0, row=0)
+        self.file_label.grid(column=1, row=0)
+        self.startstop_button.grid(column=2, row=0)
+        self.time_label.grid(column=0, row=1, columnspan=3)
 
         if self.json_reader:
             self.json_reader.startEvent += self.onStart
@@ -66,10 +58,10 @@ class JsonReaderView:
     def updateStatus(self, json_reader):
         if json_reader.isRunning():
             self.startstop_button.configure(text='Stop')
-            self.file_value_label.configure(text=json_reader.path)
+            self.file_label.configure(text=json_reader.path)
         else:
-            self.startstop_button.configure(text='Start')
+            self.startstop_button.configure(text='Play')
 
     def onUpdate(self, json_reader):
-        timeValue = str(json_reader.getTime())
-        self.time_value_label.configure(text=timeValue)
+        timeValue = '%.2f' % json_reader.getTime()
+        self.time_label.configure(text='time: '+timeValue+'s')
