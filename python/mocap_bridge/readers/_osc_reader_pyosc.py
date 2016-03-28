@@ -1,4 +1,5 @@
 from mocap_bridge.utils.color_terminal import ColorTerminal
+from mocap_bridge.utils.event import Event
 
 # try:
 from OSC import OSCServer
@@ -19,19 +20,28 @@ class OscReader:
         self._kill = False
         self.oscServer = None
         self.thread = None
+        self.connected=False
+
+        self.connectEvent = Event()
+        self.disconnectEvent = Event()
 
         if autoStart:
             self.start()
+
+    def __del__(self):
+        self.stop()
 
     def setup(self):
         if self.oscServer != None:
             self.destroy()
 
         ColorTerminal().output("Starting OSC server with host {0} and port {1}".format(self.host, self.port))
-        self.oscServer = OSCServer((self.host, self.port))
+        self.oscServer = OSCServer((self.host, int(self.port)))
         self.oscServer.handle_timeout = self.handleTimeout
         self.oscServer.addMsgHandler('/marker', self.oscMarkerHandler)
         self.oscServer.addMsgHandler('/rigidbody', self.oscRigidBodyHandler)
+        self.connected = True
+        self.connectEvent(self)
         ColorTerminal().success("Server running")
 
     def destroy(self):
@@ -40,6 +50,8 @@ class OscReader:
 
         self.oscServer.close()
         self.oscServer = None
+        self.connected = False
+        self.disconnectEvent(self)
 
     def update(self):
         if self.oscServer == None:
@@ -58,6 +70,16 @@ class OscReader:
         while not self.oscServer.timed_out and count < limit:
             self.oscServer.handle_request()
             count += 1
+
+    def configure(self, host=None, port=None):
+        if host:
+            self.host = host
+        if port:
+            self.port = port
+
+        if (host or port) and self.connected:
+            self.stop()
+            self.start()
 
     def oscMarkerHandler(self, addr, tags, data, client_address):
         if self.manager:

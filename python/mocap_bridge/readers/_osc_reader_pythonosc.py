@@ -1,4 +1,5 @@
 from mocap_bridge.utils.color_terminal import ColorTerminal
+from mocap_bridge.utils.event import Event
 
 from pythonosc.dispatcher import Dispatcher
 from pythonosc import osc_server
@@ -18,13 +19,15 @@ class OscReader:
         self._kill = False
         self.oscServer = None
         self.thread = None
+        self.connected=False
+
+        self.connectEvent = Event()
+        self.disconnectEvent = Event()
 
         if autoStart:
             self.start()
 
     def __del__(self):
-        # ColorTerminal().warn('OscReader-__del__')
-        # make sure the OSC connection socket gets freed up
         self.stop()
 
     def setup(self):
@@ -38,7 +41,7 @@ class OscReader:
         dispatcher.map("/rigidbody", self.oscRigidBodyHandler)
 
         try:
-            self.oscServer = osc_server.BlockingOSCUDPServer((self.host, self.port), dispatcher)
+            self.oscServer = osc_server.BlockingOSCUDPServer((self.host, int(self.port)), dispatcher)
             self.oscServer.handle_timeout = self.handleTimeout
             self.oscServer.timeout=0
             #self.oscServer.serve_forever()
@@ -47,6 +50,8 @@ class OscReader:
             ColorTerminal().fail("Could not create OSC server: ", err)
             self.oscServer = None
 
+        self.connected = True
+        self.connectEvent(self)
         ColorTerminal().success("OSC Server running")
 
     def destroy(self):
@@ -57,6 +62,8 @@ class OscReader:
         self.oscServer.server_close()
         ColorTerminal().success("OSC Server closed")
         self.oscServer = None
+        self.connected = False
+        self.disconnectEvent(self)
 
     def update(self):
         # ColorTerminal().warn('OscReader-update')
@@ -77,6 +84,16 @@ class OscReader:
         while not self.oscServer.timed_out and count < limit:
             self.oscServer.handle_request()
             count += 1
+
+    def configure(self, host=None, port=None):
+        if host:
+            self.host = host
+        if port:
+            self.port = port
+
+        if (host or port) and self.connected:
+            self.stop()
+            self.start()
 
     def oscMarkerHandler(self, addr=None, data=None, tags=None, client_address=None):
         if self.manager and data:
