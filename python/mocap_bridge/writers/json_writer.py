@@ -31,6 +31,7 @@ class JsonWriter:
         self.file.write('# MoCap NatNet JSON data recorded from using JsonWriter, see: https://github.com/davidjonas/MoCap/tree/master/python\n')
         self.file.write('# FORMAT: each line in the file represents a frame of natnet data and should be parsed independently from the other lines\n')
 
+        self.recordedFrames = 0
         self.startTime = datetime.now()
         self.startEvent(self)
 

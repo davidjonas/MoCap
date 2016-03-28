@@ -50,16 +50,29 @@ class JsonWriterView:
         if self.writer.isRunning():
             self.writer.stop()
         else:
+            # generate new default (timestamped) json filename
+            self.writer.setPath() # self.file_entry.get())
+            # start recording
             self.writer.start()
 
     def onStart(self, json_writer):
-        # self.writer.setPath(self.file_entry.get())
-        self.recorded_files = list(set(self.recorded_files + [json_writer.path])) # list(set()) makes sure we only have unique values
+        # add the currently recording file to the list of recorded files
+        self.recorded_files.append(json_writer.path)
+        # update GUI log
+        self.log_label.configure(text="\n".join(['Recorded files:']+self.recorded_files))
+        # change text of start/stop button
+        self.record_button.configure(text='Stop recording')
+        # update status label
         self.updateStatus(json_writer)
 
     def onStop(self, json_writer):
-        # sets new default, timestamped target file for the next recording
-        self.writer.setPath()
+        # add recorded frame count to the file log
+        self.recorded_files[-1] += ' ('+str(self.writer.recordedFrames)+' frames)'
+        # update GUI log
+        self.log_label.configure(text="\n".join(['Recorded files:']+self.recorded_files))
+        # change start/button text
+        self.record_button.configure(text='Start recording')
+        # update status label
         self.updateStatus(json_writer)
 
     def onFrame(self, json_writer):
@@ -67,10 +80,6 @@ class JsonWriterView:
 
     def updateStatus(self, json_writer):
         if json_writer.isRunning():
-            self.record_button.configure(text='Stop recording')
             self.status_label.configure(text='Recorded '+str(json_writer.recordedFrames)+' frames')
         else:
-            self.status_label.configure(text='Stopped')
-            self.record_button.configure(text='Start recording')
-
-        self.log_label.configure(text="\n".join(['Recorded files:']+self.recorded_files))
+            self.status_label.configure(text='Not recording')
