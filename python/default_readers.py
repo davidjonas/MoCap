@@ -21,7 +21,7 @@ class LiveNatnetReader(NatNetReader):
         self.connected = False
         self.dsock = None
         self.connectionLost = Event()
-        self.max_delay_in_seconds = 0.2
+        self.max_delay_in_seconds = 0.5
         self.firstTimestamp = 0
 
 
