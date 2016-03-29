@@ -159,7 +159,7 @@ class NatnetReader:
             # get rigid body IDs for current skeleton
             rigidBodyIds = map(lambda rb: rb.id, skeletonObj.rigid_bodies)
             # ingest (create or update) skeleton
-            self.manager.processSkeletonObject({id: skeletonObj.id, rigid_body_ids: rigidBodyIds})
+            self.manager.processSkeletonObject({"id": skeletonObj.id, "rigid_body_ids": rigidBodyIds})
             # ingest skeleton's rigid bodies, only when enabled (might contain the same rigid bodies as packet's root level)
             if self.ingestSkeletonRigidBodies:
                 self._ingestRigidBodyData(self.skeletonObj.rigid_bodies, batch)

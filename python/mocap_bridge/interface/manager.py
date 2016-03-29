@@ -189,11 +189,16 @@ class Manager(BatchesMixin):
     # about the RigidBody proprietary class
 
     def processRigidBodyJson(self, json, batch=None):
-        rb = RigidBody().fromJSON(json)
+        rb = RigidBody()
+        rb.fromJSON(json)
         self.addOrUpdateRigidBody(rb, batch)
 
     def processRigidBodyObject(self, obj, batch=None):
-        rb = RigidBody().fromObject(obj)
+        rb = RigidBody()
+        if 'keys' in dir(obj):
+            rb.fromObject(obj)
+        else:
+            rb.fromNatnetObject(obj)
         self.addOrUpdateRigidBody(rb, batch)
 
     # this is a convenience method that register to given callback
@@ -234,7 +239,7 @@ class Manager(BatchesMixin):
 
     # adders
     def addSkeleton(self, skeleton, batch=None):
-        existing = skeletonById(skeleton.id)
+        existing = self.skeletonById(skeleton.id)
         # turn batch-id into batch data object
         batch = self.batch(batch) if batch else None
 
@@ -243,7 +248,7 @@ class Manager(BatchesMixin):
             # apply changes
             existing.copy(skeleton)
         else:
-            self.skeletons[skeleton.id] = skeletonById
+            self.skeletons[skeleton.id] = skeleton
 
         self.updateEvent(self)
 
@@ -283,5 +288,5 @@ class Manager(BatchesMixin):
 
     # data transformers
     def processSkeletonObject(self, obj, batch=None):
-        sk = Skeleton().fromObject(obj)
+        sk = Skeleton(obj["id"]).fromObject(obj)
         self.addSkeleton(sk, batch)

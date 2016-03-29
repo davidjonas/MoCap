@@ -49,7 +49,7 @@ class RigidBody(object):
 
     def fromObject(self, obj):
         if not 'keys' in dir(obj):
-            ColorTerminal().red('RigidBody.fromObject received non-dict object')
+            ColorTerminal().red('RigidBody.fromObject received non-dict object. Maybe you meant fromNatnetObject() instead.')
             return
 
         if 'id' in obj.keys():
@@ -61,7 +61,11 @@ class RigidBody(object):
         if 'name' in obj.keys():
             self.name = obj["name"]
 
-        return self
+    def fromNatnetObject(self, obj):
+        if obj is not None:
+            self.id = obj.id
+            self.position = obj.position
+            self.orientation = obj.orientation
 
     def toJSON(self):
         json_obj = self.toObject()

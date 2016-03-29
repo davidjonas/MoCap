@@ -25,6 +25,10 @@ class Skeleton(object):
 
         return self
 
+    def copy(self, skeleton):
+        self.rigid_body_ids = skeleton.rigid_body_ids
+        self.name = skeleton.name
+
     def toString(self):
         pass
 
