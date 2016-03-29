@@ -8,6 +8,8 @@ from natnet_reader import NatNetReader
 from event import Event
 from natnet_data import *
 import json
+import time
+from datetime import datetime
 
 class LiveNatnetReader(NatNetReader):
     def __init__(self, host, multicast, port):
@@ -19,10 +21,12 @@ class LiveNatnetReader(NatNetReader):
         self.connected = False
         self.dsock = None
         self.connectionLost = Event()
+        self.max_delay_in_seconds = 0.2
+        self.firstTimestamp = 0
 
 
     def openStream(self):
-        print(bcolors.OKBLUE + "Connecting to %s : %s" % (self.host, self.port) + bcolors.ENDC)
+        print(bcolors.OKGREEN + "Connecting to NatNet @ %s : %s" % (self.host, self.port) + bcolors.ENDC)
         try:
             if self.host is None:
                 self.dsock = rx.mkdatasock() #Connecting to localhost
@@ -40,6 +44,9 @@ class LiveNatnetReader(NatNetReader):
         return self.connected
 
     def closeStream(self):
+        print(bcolors.OKBLUE + "Disconnected from NatNet" + bcolors.ENDC)
+        if self.dsock is not None:
+            self.dsock.close()
         self.dsock = None
         self.connected = False
         self.connectionLost()
@@ -47,20 +54,28 @@ class LiveNatnetReader(NatNetReader):
     def readDataFrame(self):
         data = self.dsock.recv(rx.MAX_PACKETSIZE)
         packet = rx.unpack(data, version=self.version)
-        if type(packet) is rx.SenderData:
-            setVersion(packet.natnet_version)
-        self.parse(packet)
+
+        if self.firstTimestamp == 0 or self.firstTimestamp > packet.timestamp:
+            self.firstTimestamp = packet.timestamp
+            self.startTime = datetime.now()
+
+        if packet.timestamp - self.firstTimestamp < datetime.now() - self.startTime + self.max_delay_in_seconds:
+            if type(packet) is rx.SenderData:
+                setVersion(packet.natnet_version)
+            self.parse(packet)
 
     def parse(self, packet):
-        for s in packet.skeletons:
-            skel = self.getOrCreateSkeleton(s.id)
-            for r in s.rigid_bodies:
-                rb = RigidBody(obj=r)
-                skel.addOrUpdateRigidbody(rb)
+        #for s in packet.skeletons:
+            #skel = self.getOrCreateSkeleton(s.id)
+            #for r in s.rigid_bodies:
+                #self.updateRigidbody(obj)
+                #rb = RigidBody(obj=r)
+                #skel.addOrUpdateRigidbody(rb)
 
         for r in packet.rigid_bodies:
-            rb = RigidBody(obj=r)
-            self.addOrUpdateRigidbody(rb)
+            self.updateRigidbody(obj)
+            #rb = RigidBody(obj=r)
+            #self.addOrUpdateRigidbody(rb)
 
 class JSONNatNetReader(NatNetReader):
     def __init__(self, path, loop=True):
@@ -87,18 +102,25 @@ class JSONNatNetReader(NatNetReader):
                 if self.loop:
                     self.file.seek(0)
                     line = self.file.readline()
+                    self.startTime = datetime.now()
                 else:
                     self.closeStream()
             try:
                 data = json.loads(line)
                 dt = self.getTime()
-                #while data["t"] > dt:
-                #    pass
-                for rigid in data['rigidbodies']:
-                    rb = RigidBody(id=rigid["id"], position=rigid["p"], orientation=rigid["r"])
-                    self.addOrUpdateRigidbody(rb)
+                if data["t"] > dt:
+                    for rigid in data['rigidbodies']:
+                        #rb = RigidBody(id=rigid["id"], position=rigid["p"], orientation=rigid["r"])
+                        #self.addOrUpdateRigidbody(rb)
+                        obj = {
+                            "id":rigid["id"],
+                            "position":rigid["p"],
+                            "orientation":rigid["r"]
+                        }
+                        self.updateRigidbody(obj)
             except:
                 print(bcolors.FAIL +"Error parsing file."+ bcolors.ENDC)
+                raise
         else:
             #print "File does not exist."
             pass

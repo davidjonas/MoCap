@@ -9,7 +9,11 @@ class NatNetPipeline(object):
     def start(self):
         self.writer.start()
         self.reader.start()
+        self.reader.updateRigidbody += self.updateRigidbody
 
     def stop(self):
         self.reader.stop()
         self.writer.stop()
+
+    def updateRigidbody(self, obj):
+        self.writer.writeRigidbody(obj)

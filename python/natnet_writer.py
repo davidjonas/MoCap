@@ -21,10 +21,7 @@ class NatNetWriter(object):
         self.reader = reader
 
     def updateHandler(self):
-        t = datetime.now()
-        dt = (t-self.startTime).total_seconds()
-
-        self.writeDataFrame(self.reader, dt)
+        self.writeDataFrame(self.reader)
 
     def rbUpdateHandler(self, rb):
         self.writeRigidbody(rb)
@@ -43,7 +40,7 @@ class NatNetWriter(object):
 
     def stop(self):
         self.isRunning = False
-        self.reader.onUpdate -= self.updateHandler
+        #self.reader.onUpdate -= self.updateHandler
         self.startTime = None
         self.closeStream()
 
@@ -54,7 +51,7 @@ class NatNetWriter(object):
     def closeStream(self): pass
 
     @abstractmethod
-    def writeDataFrame(self, reader, timestamp): pass
+    def writeDataFrame(self, reader): pass
 
     @abstractmethod
     def writeRigidbody(self, rb): pass

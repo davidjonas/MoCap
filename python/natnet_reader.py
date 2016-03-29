@@ -19,6 +19,7 @@ class NatNetReader(threading.Thread):
         self.startTime = None
         self.kill = False
         self.daemon = True
+        self.updateRigidbody = Event()
 
     def countSkeletons(self):
         return len(self.skeletons)
@@ -39,7 +40,7 @@ class NatNetReader(threading.Thread):
             self.rigidbodies[rb.id].update(rb.position, rb.orientation)
         except:
             self.rigidbodies[rb.id] = rb
-        self.onRigidbodyUpdate(rb)
+        #self.onRigidbodyUpdate(rb)
 
     def getAllRigidbodies(self):
         #return self.rigidbodies
@@ -48,10 +49,10 @@ class NatNetReader(threading.Thread):
         for rb in self.rigidbodies.keys():
             allrb[rb] = self.rigidbodies[rb]
 
-        for s in self.skeletons.keys():
-            for r in self.skeletons[s].rigidbodies:
-                allrb[r] = self.skeletons[s].rigidbodies[r]
-        return allrb
+        #for s in self.skeletons.keys():
+        #    for r in self.skeletons[s].rigidbodies:
+        #        allrb[r] = self.skeletons[s].rigidbodies[r]
+        #return allrb
 
     def getTime(self):
         if self.startTime is not None:
@@ -67,10 +68,10 @@ class NatNetReader(threading.Thread):
         self.startTime = datetime.now()
         while not self.kill:
             self.readDataFrame()
-            self.onUpdate()
-        self.closeStream()
+            #self.onUpdate()
 
     def stop(self):
+        self.closeStream()
         self.kill = True
 
     @abstractmethod

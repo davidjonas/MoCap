@@ -1,6 +1,6 @@
 from natnet_pipeline import NatNetPipeline
 from default_readers import *
-from default_writers import OSCNatNetWriter
+from default_writers import *
 import sys
 
 def t():
