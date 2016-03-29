@@ -15,6 +15,7 @@ class NatNetWriter(object):
         self.writtenFrames = 0
         self.isRunning = False
         self.reader = None
+        self.updatePerDataFrame = False
 
     def attachReader(self, reader):
         self.reader = reader
@@ -25,12 +26,18 @@ class NatNetWriter(object):
 
         self.writeDataFrame(self.reader, dt)
 
+    def rbUpdateHandler(self, rb):
+        self.writeRigidbody(rb)
+
     def start(self):
         if self.reader is not None:
             self.openStream()
             self.isRunning = True
             self.startTime = datetime.now()
-            self.reader.onUpdate += self.updateHandler
+            if self.updatePerDataFrame:
+                self.reader.onUpdate += self.updateHandler
+            else:
+                self.reader.onRigidbodyUpdate += self.rbUpdateHandler
         else:
             raise ReaderNotAttachedException("Cannot start the writer without a reader attached.")
 
@@ -48,3 +55,9 @@ class NatNetWriter(object):
 
     @abstractmethod
     def writeDataFrame(self, reader, timestamp): pass
+
+    @abstractmethod
+    def writeRigidbody(self, rb): pass
+
+    @abstractmethod
+    def writeSkeleton(self, sk): pass

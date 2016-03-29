@@ -143,28 +143,31 @@ public class NatNetBackend : MonoBehaviour {
 
 	public void processMessage(OscMessage m)
 	{
-		var rb = SimpleJSON.JSON.Parse(m.Values[0].ToString());
-		Vector3 position = new Vector3(float.Parse(rb["position"][0]), float.Parse(rb["position"][1]),float.Parse(rb["position"][2]));
-		Quaternion rotation = new Quaternion(float.Parse(rb["orientation"][0]),float.Parse(rb["orientation"][1]),float.Parse(rb["orientation"][2]),float.Parse(rb["orientation"][3]));
-		int id = int.Parse(rb["id"]);
-		bool found = false;
-		
-		foreach(NatNetRigidbody current in rigidbodies)
+		if(m.Address == "/rigidbody")
 		{
-			if(current.id == id)
+			var rb = SimpleJSON.JSON.Parse(m.Values[0].ToString());
+			Vector3 position = new Vector3(float.Parse(rb["position"][0]), float.Parse(rb["position"][1]),float.Parse(rb["position"][2]));
+			Quaternion rotation = new Quaternion(float.Parse(rb["orientation"][0]),float.Parse(rb["orientation"][1]),float.Parse(rb["orientation"][2]),float.Parse(rb["orientation"][3]));
+			int id = int.Parse(rb["id"]);
+			bool found = false;
+			
+			foreach(NatNetRigidbody current in rigidbodies)
 			{
-				current.Update(position, rotation);
-				onNatNetUpdate(current);
-				found = true;
-				break;
+				if(current.id == id)
+				{
+					current.Update(position, rotation);
+					onNatNetUpdate(current);
+					found = true;
+					break;
+				}
 			}
-		}
-		
-		if (!found)
-		{
-			NatNetRigidbody r = new NatNetRigidbody(id, position, rotation);
-			rigidbodies.Add(r);
-			onNatNetUpdate(r);
+			
+			if (!found)
+			{
+				NatNetRigidbody r = new NatNetRigidbody(id, position, rotation);
+				rigidbodies.Add(r);
+				onNatNetUpdate(r);
+			}
 		}
 	}
 

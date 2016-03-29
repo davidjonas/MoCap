@@ -14,10 +14,12 @@ class RigidBody(object):
             self.orientation = obj.orientation
             self.name = "RigidBody"
         self.onUpdate = Event()
+        self.updated = True
 
     def update(self, position, orientation):
         self.position = position
         self.orientation = orientation
+        self.updated = True;
         self.onUpdate()
 
     def rename(self, name):
@@ -70,7 +72,18 @@ class Skeleton(object):
 
 
     def toString(self):
-        pass
+        return "Skeleton %(id)s: rigidbodies: %(rbs)s;" % {"id": self.id, "rbs":len(self.rigidbodies)}
+
+
+    def toObject(self):
+        rbs = []
+        for r in self.rigidbodies:
+            rbs.append(self.rigidbodies[r].id)
+        return {
+        "id": self.id,
+        "rigidbodies":rbs
+        }
 
     def toJSON(self):
-        pass
+        json_obj = self.toObject()
+        return json.dumps(json_obj)

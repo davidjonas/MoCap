@@ -15,6 +15,7 @@ class NatNetReader(threading.Thread):
         self.rigidbodies = {}
         self.skeletons = {}
         self.onUpdate = Event()
+        self.onRigidbodyUpdate = Event()
         self.startTime = None
         self.kill = False
         self.daemon = True
@@ -30,23 +31,27 @@ class NatNetReader(threading.Thread):
             return self.skeletons[skelid]
         else:
             skel = Skeleton(skelid)
-            self.skeletonsp[skelid] = skel
+            self.skeletons[skelid] = skel
             return skel
 
     def addOrUpdateRigidbody(self, rb):
-        if rb.id in self.rigidbodies.keys():
+        try:
             self.rigidbodies[rb.id].update(rb.position, rb.orientation)
-        else:
+        except:
             self.rigidbodies[rb.id] = rb
+        self.onRigidbodyUpdate(rb)
 
     def getAllRigidbodies(self):
-        return self.rigidbodies
+        #return self.rigidbodies
         #TODO: Deal with skeletons here, keep it perfomance critical
-        #allrb = []
-        #allrb += self.rigidbodies
-        #for s in self.skeletons:
-        #    allrb += s.rigidbodies
-        #return allrb
+        allrb = {}
+        for rb in self.rigidbodies.keys():
+            allrb[rb] = self.rigidbodies[rb]
+
+        for s in self.skeletons.keys():
+            for r in self.skeletons[s].rigidbodies:
+                allrb[r] = self.skeletons[s].rigidbodies[r]
+        return allrb
 
     def getTime(self):
         if self.startTime is not None:
