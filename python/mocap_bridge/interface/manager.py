@@ -152,6 +152,7 @@ class Manager(BatchesMixin):
     # adders
 
     def addRigidBody(self, rigid_body, batch=None):
+        print('add rb:', rigid_body)
         if rigid_body == None:
             return
 
@@ -202,6 +203,7 @@ class Manager(BatchesMixin):
 
     def processRigidBodyObject(self, obj, batch=None):
         rb = RigidBody().fromObject(obj)
+        # print('Manager processRigidBodyObject, single rb:', rb)
         self.addOrUpdateRigidBody(rb, batch)
 
     # this is a convenience method that register to given callback

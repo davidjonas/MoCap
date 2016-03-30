@@ -26,5 +26,6 @@ while True:
         # the manager will trigger some events when it gets new data
         # the writer will respond to the manager's events and output information
         reader.update()
+        # print('Forward manager rigid body count:', len(manager.allRigidBodies()))
     except KeyboardInterrupt:
         break

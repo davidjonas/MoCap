@@ -62,7 +62,7 @@ class NatnetReader:
         if data:
             packet = rx.unpack(data, version=self.version)
             if type(packet) is rx.SenderData:
-                setVersion(packet.natnet_version)
+                self.setVersion(packet.natnet_version)
             self._parse(packet)
 
     def start(self):
@@ -96,6 +96,9 @@ class NatnetReader:
         if (host or port or multicast) and self.connected:
             self.stop()
             self.start()
+
+    def setVersion(self, version):
+        self.version=version
 
     def _threaded_main(self):
         self.setup()
@@ -171,4 +174,5 @@ class NatnetReader:
         # print('_ingestRigidBodyData: ', rbData)
         for rbObj in rbData:
             # ingest (create or update) rigid body
+            # print('_ingestRigidBodyData, single rb: ', rbObj)
             self.manager.processRigidBodyObject(rbObj, batch)

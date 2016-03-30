@@ -52,6 +52,8 @@ class RigidBody(object):
         return json.dumps(json_obj)
 
     def fromObject(self, obj):
+        # print('RigidBody.fromObject, got:', obj)
+        
         if not 'keys' in dir(obj):
             # ColorTerminal().red('RigidBody.fromObject received non-dict object')
             if hasattr(obj, 'id'):
@@ -62,8 +64,7 @@ class RigidBody(object):
                 self.orientation = obj.orientation
             if hasattr(obj, 'name'):
                 self.name = obj.name
-
-            return
+            return self
 
         if 'id' in obj.keys():
             self.id = obj["id"]
