@@ -55,14 +55,14 @@ class LiveNatnetReader(NatNetReader):
         data = self.dsock.recv(rx.MAX_PACKETSIZE)
         packet = rx.unpack(data, version=self.version)
 
-        if self.firstTimestamp == 0 or self.firstTimestamp > packet.timestamp:
-            self.firstTimestamp = packet.timestamp
-            self.startTime = datetime.now()
+        #if self.firstTimestamp == 0 or self.firstTimestamp > packet.timestamp:
+        #    self.firstTimestamp = packet.timestamp
+        #    self.startTime = datetime.now()
 
-        if packet.timestamp - self.firstTimestamp < datetime.now() - self.startTime + self.max_delay_in_seconds:
-            if type(packet) is rx.SenderData:
-                setVersion(packet.natnet_version)
-            self.parse(packet)
+        #if packet.timestamp - self.firstTimestamp < datetime.now() - self.startTime + self.max_delay_in_seconds:
+        if type(packet) is rx.SenderData:
+            setVersion(packet.natnet_version)
+        self.parse(packet)
 
     def parse(self, packet):
         #for s in packet.skeletons:
