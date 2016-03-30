@@ -34,6 +34,7 @@ class LiveNatnetReader(NatNetReader):
                 self.dsock = rx.mkdatasock(ip_address=self.host, multicast_address=self.multicast, port=int(self.port)) #Connecting to multicast address
             else:
                 self.dsock = rx.mkdatasock(ip_address=self.host, port=int(self.port)) # Connecting to IP address
+            # self.dsock.setblocking(0)
             self.connected = True
         except:
             self.connected = False
@@ -52,6 +53,7 @@ class LiveNatnetReader(NatNetReader):
         self.connectionLost()
 
     def readDataFrame(self):
+        # print('readDataFrame')
         data = self.dsock.recv(rx.MAX_PACKETSIZE)
         packet = rx.unpack(data, version=self.version)
 
@@ -59,12 +61,14 @@ class LiveNatnetReader(NatNetReader):
             self.firstTimestamp = packet.timestamp
             self.startTime = datetime.now()
 
-        if packet.timestamp - self.firstTimestamp < datetime.now() - self.startTime + self.max_delay_in_seconds:
+        if (packet.timestamp - self.firstTimestamp) < datetime.now().second - self.startTime.second + self.max_delay_in_seconds:
             if type(packet) is rx.SenderData:
                 setVersion(packet.natnet_version)
             self.parse(packet)
 
     def parse(self, packet):
+        # print('parse:', packet)
+
         #for s in packet.skeletons:
             #skel = self.getOrCreateSkeleton(s.id)
             #for r in s.rigid_bodies:
