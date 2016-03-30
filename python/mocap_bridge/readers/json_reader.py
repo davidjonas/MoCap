@@ -7,7 +7,7 @@ import threading
 from datetime import datetime
 
 class JsonReader:
-    def __init__(self, path, loop=True, sync=False, threaded=False, manager=None, autoStart=True):
+    def __init__(self, path, loop=True, sync=True, threaded=False, manager=None, autoStart=True):
         # params
         self.path = path
         self.loop = loop

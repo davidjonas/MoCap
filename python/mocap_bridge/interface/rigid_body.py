@@ -77,6 +77,8 @@ class RigidBody(object):
         if 'name' in obj.keys():
             self.name = obj["name"]
 
+        return self
+
     def toJSON(self):
         json_obj = self.toObject()
         return json.dumps(json_obj)

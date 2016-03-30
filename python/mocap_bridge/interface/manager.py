@@ -4,7 +4,7 @@ from mocap_bridge.interface.skeleton import Skeleton
 from mocap_bridge.utils.event import Event
 
 
-class Manager(BatchesMixin):
+class Manager:
     _instance = None
     _reference_instance = {}
 
@@ -24,7 +24,10 @@ class Manager(BatchesMixin):
             Manager._reference_instance[ref] = inst
             return inst
 
-    def __init__(self):
+    def __init__(self, importSkeletonRigidBodies=True):
+        self.importSkeletonRigidBodies = importSkeletonRigidBodies
+
+        # lists
         self.markers = []
         self.rigid_bodies = {}
         self.skeletons = {}
@@ -36,7 +39,6 @@ class Manager(BatchesMixin):
         self.newRigidBodyEvent = Event()
 
         self.startTime = None
-        self.importSkeletonRigidBodies = True
 
     # === ===
     # Markers
@@ -151,7 +153,6 @@ class Manager(BatchesMixin):
     def processRigidBodyObject(self, obj, batch=None):
         rb = RigidBody().fromObject(obj)
         # print('Manager processRigidBodyObject, single rb:', rb)
-
         self.addOrUpdateRigidBody(rb, batch)
 
     # this is a convenience method that register to given callback
