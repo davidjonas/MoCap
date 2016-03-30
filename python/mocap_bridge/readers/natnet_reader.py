@@ -139,7 +139,7 @@ class NatnetReader:
         if not self.manager:
             return
 
-        print('_parse:',packet)
+        # print('_parse:',packet)
         # print('parse dir:', dir(packet))
         if self.readMarkers and 'other_markers' in dir(packet):
             self.manager.processMarkersData(packet.other_markers, 'NatnetReader')
