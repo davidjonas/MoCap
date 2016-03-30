@@ -2,7 +2,7 @@
 # from mocap_interface.rigid_body import RigidBody
 
 class Skeleton(object):
-    def __init__(self, id, rigidbodies={}, name="unnamed"):
+    def __init__(self, id=None, rigidbodies={}, name="unnamed"):
         self.id = id
         self.rigid_body_ids = set()
         self.name = name
@@ -24,6 +24,11 @@ class Skeleton(object):
             self.rigid_body_ids = set(obj.rigid_body_ids)
 
         return self
+
+    def copy(self, skeleton):
+        self.id = skeleton.id
+        self.rigid_body_ids = skeleton.rigid_body_ids
+        self.name = skeleton.name
 
     def toString(self):
         pass

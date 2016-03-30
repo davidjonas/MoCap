@@ -234,7 +234,7 @@ class Manager(BatchesMixin):
 
     # adders
     def addSkeleton(self, skeleton, batch=None):
-        existing = skeletonById(skeleton.id)
+        existing = self.skeletonById(skeleton.id)
         # turn batch-id into batch data object
         batch = self.batch(batch) if batch else None
 
@@ -243,7 +243,7 @@ class Manager(BatchesMixin):
             # apply changes
             existing.copy(skeleton)
         else:
-            self.skeletons[skeleton.id] = skeletonById
+            self.skeletons[skeleton.id] = skeleton #self.skeletonById
 
         self.updateEvent(self)
 

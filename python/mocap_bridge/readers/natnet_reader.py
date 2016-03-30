@@ -106,14 +106,16 @@ class NatnetReader:
         self.destroy()
 
     def _connect(self):
-        ColorTerminal().blue("Connecting to %s : %s" % (self.host, self.port))
+
 
         try:
             if self.host is None:
                 self.dsock = rx.mkdatasock() #Connecting to localhost
             elif self.multicast is not None and self.multicast is not '' and self.port is not None:
+                ColorTerminal().blue("Connecting to natnet on %s@%s (multicast: %s)" % (self.host, self.port, self.multicast))
                 self.dsock = rx.mkdatasock(ip_address=self.host, multicast_address=self.multicast, port=int(self.port)) #Connecting to multicast address
             else:
+                ColorTerminal().blue("Connecting to natnet on %s@%s" % (self.host, self.port))
                 self.dsock = rx.mkdatasock(ip_address=self.host, port=int(self.port)) # Connecting to IP address
 
             self.dsock.setblocking(0)
@@ -159,7 +161,7 @@ class NatnetReader:
             # get rigid body IDs for current skeleton
             rigidBodyIds = map(lambda rb: rb.id, skeletonObj.rigid_bodies)
             # ingest (create or update) skeleton
-            self.manager.processSkeletonObject({id: skeletonObj.id, rigid_body_ids: rigidBodyIds})
+            self.manager.processSkeletonObject({'id': skeletonObj.id, 'rigid_body_ids': rigidBodyIds})
             # ingest skeleton's rigid bodies, only when enabled (might contain the same rigid bodies as packet's root level)
             if self.ingestSkeletonRigidBodies:
                 self._ingestRigidBodyData(self.skeletonObj.rigid_bodies, batch)
