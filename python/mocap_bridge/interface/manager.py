@@ -73,6 +73,7 @@ class Manager(BatchesMixin):
         self.newRigidBodyEvent = Event()
 
         self.startTime = None
+        self.importSkeletonRigidBodies = True
 
     def finishBatch(self, batch):
         b = self.batch(batch)
@@ -151,7 +152,14 @@ class Manager(BatchesMixin):
     # adders
 
     def addRigidBody(self, rigid_body, batch=None):
-        existing = self.rigidBodyById(rigid_body.id)
+        if rigid_body == None:
+            return
+
+        if hasattr(rigid_body, 'id'):
+            existing = self.rigidBodyById(rigid_body.id)
+        else:
+            existing = None
+
         batch = self.batch(batch) if batch else None
 
         # UPDATE
@@ -285,3 +293,13 @@ class Manager(BatchesMixin):
     def processSkeletonObject(self, obj, batch=None):
         sk = Skeleton().fromObject(obj)
         self.addSkeleton(sk, batch)
+
+        if self.importSkeletonRigidBodies and 'rigid_bodies' in obj:
+                # print('processSkeletonObject rbs', obj['rigid_bodies'])
+                for rb in obj['rigid_bodies']:
+                    # print('rb:', rb)
+                    # RigidBody(id=327683, position=(0.38059476017951965, 1.168117880821228, -0.10533234477043152), orientation=(-0.1181657463312149, 0.08150681853294373, 0.03866847604513168, -0.988887369632721), markers=[], mrk_ids=(), mrk_sizes=(), mrk_mean_error=-1.0027672160254186e+32, tracking_valid=False))
+                    self.processRigidBodyObject({
+                        'id': rb.id,
+                        'position': rb.position,
+                        'orientation': rb.orientation}, batch)

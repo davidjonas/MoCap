@@ -47,9 +47,22 @@ class RigidBody(object):
             "orientation": self.orientation
         }
 
+    def toJSON(self):
+        json_obj = self.toObject()
+        return json.dumps(json_obj)
+
     def fromObject(self, obj):
         if not 'keys' in dir(obj):
-            ColorTerminal().red('RigidBody.fromObject received non-dict object')
+            # ColorTerminal().red('RigidBody.fromObject received non-dict object')
+            if hasattr(obj, 'id'):
+                self.id = obj.id
+            if hasattr(obj,'position'):
+                self.position = obj.position
+            if hasattr(obj, 'orientation'):
+                self.orientation = obj.orientation
+            if hasattr(obj, 'name'):
+                self.name = obj.name
+
             return
 
         if 'id' in obj.keys():

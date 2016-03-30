@@ -139,7 +139,7 @@ class NatnetReader:
         if not self.manager:
             return
 
-        # print('_parse:',packet)
+        print('_parse:',packet)
         # print('parse dir:', dir(packet))
         if self.readMarkers and 'other_markers' in dir(packet):
             self.manager.processMarkersData(packet.other_markers, 'NatnetReader')
@@ -149,6 +149,7 @@ class NatnetReader:
         self.manager.finishBatch('NatnetReader')
 
     def _ingestSkeletonData(self, skData, batch=None):
+        # print('_ingestSkeletonData: ', skData)
         # SKELETONS don't hold rigid bodies anymore (just creates duplicate data
         # as all those rigid bodies are already in the main system)
         # for skeletonObj in packet.skeletons:
@@ -161,12 +162,13 @@ class NatnetReader:
             # get rigid body IDs for current skeleton
             rigidBodyIds = map(lambda rb: rb.id, skeletonObj.rigid_bodies)
             # ingest (create or update) skeleton
-            self.manager.processSkeletonObject({'id': skeletonObj.id, 'rigid_body_ids': rigidBodyIds})
+            self.manager.processSkeletonObject({'id': skeletonObj.id, 'rigid_body_ids': rigidBodyIds, 'rigid_bodies': skeletonObj.rigid_bodies})
             # ingest skeleton's rigid bodies, only when enabled (might contain the same rigid bodies as packet's root level)
             if self.ingestSkeletonRigidBodies:
                 self._ingestRigidBodyData(self.skeletonObj.rigid_bodies, batch)
 
     def _ingestRigidBodyData(self, rbData, batch=None):
+        # print('_ingestRigidBodyData: ', rbData)
         for rbObj in rbData:
             # ingest (create or update) rigid body
             self.manager.processRigidBodyObject(rbObj, batch)
