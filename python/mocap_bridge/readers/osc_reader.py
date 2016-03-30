@@ -30,4 +30,4 @@ if not loaded:
 #
 
 if not loaded:
-    ColorTerminal().warn("Couldn't load python-osc implementation; can't load OscReader")
+    ColorTerminal().warn("Couldn't load python-osc implementation; unable load OscReader")

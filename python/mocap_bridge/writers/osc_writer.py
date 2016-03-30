@@ -4,8 +4,7 @@ from mocap_bridge.utils.event import Event
 try:
     import OSC
 except ImportError:
-    ColorTerminal().fail("Error importing library, please install pyOSC by running: sudo pip install pyOSC")
-
+    ColorTerminal().fail("Error importing OSC library for OscWriter, please install pyOSC by running: sudo pip install pyOSC")
 
 class OscWriter:
     def __init__(self, host="127.0.0.1", port=8080, manager=None, autoStart=True):
