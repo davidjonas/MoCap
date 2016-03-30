@@ -27,18 +27,24 @@ class Manager:
     def __init__(self, importSkeletonRigidBodies=True):
         self.importSkeletonRigidBodies = importSkeletonRigidBodies
 
-        # lists
-        self.markers = []
-        self.rigid_bodies = {}
-        self.skeletons = {}
-
         # Events
         self.updateEvent = Event()
         self.updateMarkersEvent = Event()
         self.updateRigidBodyEvent = Event()
         self.newRigidBodyEvent = Event()
+        self.resetEvent = Event()
 
-        self.startTime = None
+        # this initializes some required attributes
+        self.reset()
+
+    def reset(self):
+        # lists
+        self.markers = []
+        self.rigid_bodies = {}
+        self.skeletons = {}
+        # trigger notifications
+        self.resetEvent(self)
+        self.updateEvent(self) # reset kinda counts for an update
 
     # === ===
     # Markers
@@ -205,40 +211,6 @@ class Manager:
             self.skeletons[skeleton.id] = skeleton
 
         self.updateEvent(self)
-
-        #
-        # existing = self.rigidBodyById(rigid_body.id)
-        # batch = self.batch(batch) if batch else None
-        #
-        # # UPDATE
-        # if existing != None:
-        #     # apply changes
-        #     existing.copy(rigid_body)
-        #
-        #     if batch:
-        #         # batch; notify later
-        #         batch['updated_rigid_bodies'].add(rigid_body)
-        #     else:
-        #         # no batch; notify now
-        #         self.updateRigidBodyEvent(rigid_body)
-        # # CREATE
-        # else:
-        #     # add rigid body
-        #     self.rigid_bodies[rigid_body.id] = rigid_body
-        #
-        #     if batch:
-        #         # batch; notify later
-        #         batch['added_rigid_bodies'].add(rigid_body)
-        #     else:
-        #         # no batch; notify now
-        #         self.newRigidBodyEvent(rigid_body)
-        #
-        # if not batch:
-        #     self.updateEvent(self)
-        #
-        #
-        #
-        #
 
     # data transformers
     def processSkeletonObject(self, obj, batch=None):
