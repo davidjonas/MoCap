@@ -65,6 +65,8 @@ class LiveNatnetReader(NatNetReader):
         self.parse(packet)
 
     def parse(self, packet):
+        # print('parse:', packet)
+
         #for s in packet.skeletons:
             #skel = self.getOrCreateSkeleton(s.id)
             #for r in s.rigid_bodies:
