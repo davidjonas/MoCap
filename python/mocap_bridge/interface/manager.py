@@ -3,43 +3,6 @@ from mocap_bridge.interface.rigid_body import RigidBody
 from mocap_bridge.interface.skeleton import Skeleton
 from mocap_bridge.utils.event import Event
 
-class BatchesMixin:
-    # returns self's batches dict (creates one if necessary)
-    def batches(self):
-        if hasattr(self, '_batches'):
-            return self._batches
-
-        # the batches dict will have the following layout, and will be used to
-        # delay event notification until an entire batch has has been completed
-        # <batch-identifier>: {
-        #   added_rigid_bodies: [<rigid_body>, <rigid_body>],
-        #   updated_rigid_bodies: [<rigid_body>, <rigid_body>],
-        #   added_skeletons: [<skeleton>, <skeleton>],
-        #   updated_skeletons: [<skeleton>, <skeleton>],
-        #   markers: [<marker>, <marker>]
-        # }
-        self._batches = {}
-
-        return self._batches
-
-    # returns the data for a specific batch (creates it if necessary)
-    def batch(self, batch_id):
-        if not batch_id in self.batches():
-            self.batches()[batch_id] = {
-                'added_rigid_bodies': set(),
-                'updated_rigid_bodies': set(),
-                'added_skeletons': set(),
-                'updated_skeletons': set(),
-                'markers': []
-            }
-
-        return self.batches()[batch_id]
-
-    # removes the data for a specific batch (if it exists)
-    def removeBatch(self, batch_id):
-        if batch_id in self.batches():
-            del self.batches()[batch_id]
-
 
 class Manager(BatchesMixin):
     _instance = None
@@ -73,22 +36,7 @@ class Manager(BatchesMixin):
         self.newRigidBodyEvent = Event()
 
         self.startTime = None
-
-    def finishBatch(self, batch):
-        b = self.batch(batch)
-
-        if len(b['markers']) > 0:
-            self.markers = b['markers']
-            self.updateMarkersEvent(self)
-
-        for rb in b['added_rigid_bodies']:
-            self.newRigidBodyEvent(rb)
-        for rb in b['updated_rigid_bodies']:
-            self.updateRigidBodyEvent(rb)
-
-        # TODO: skeletons
-        self.updateEvent(self)
-        self.removeBatch(batch)
+        self.importSkeletonRigidBodies = True
 
     # === ===
     # Markers
@@ -151,7 +99,14 @@ class Manager(BatchesMixin):
     # adders
 
     def addRigidBody(self, rigid_body, batch=None):
-        existing = self.rigidBodyById(rigid_body.id)
+        if rigid_body == None:
+            return
+
+        if hasattr(rigid_body, 'id'):
+            existing = self.rigidBodyById(rigid_body.id)
+        else:
+            existing = None
+
         batch = self.batch(batch) if batch else None
 
         # UPDATE
@@ -194,11 +149,9 @@ class Manager(BatchesMixin):
         self.addOrUpdateRigidBody(rb, batch)
 
     def processRigidBodyObject(self, obj, batch=None):
-        rb = RigidBody()
-        if 'keys' in dir(obj):
-            rb.fromObject(obj)
-        else:
-            rb.fromNatnetObject(obj)
+        rb = RigidBody().fromObject(obj)
+        # print('Manager processRigidBodyObject, single rb:', rb)
+
         self.addOrUpdateRigidBody(rb, batch)
 
     # this is a convenience method that register to given callback
@@ -288,5 +241,79 @@ class Manager(BatchesMixin):
 
     # data transformers
     def processSkeletonObject(self, obj, batch=None):
-        sk = Skeleton(obj["id"]).fromObject(obj)
+        sk = Skeleton().fromObject(obj)
         self.addSkeleton(sk, batch)
+
+        # import skeleton's rigid bodies as separate rigid bodies?
+        if self.importSkeletonRigidBodies:
+            if 'rigid_bodies' in obj:
+                rbs = obj['rigid_bodies']
+            elif hasattr(obj, 'rigid_bodies'):
+                rbs = obj.rigid_bodies
+            else:
+                rbs = []
+
+            for rb in rbs:
+                # print('rb:', rb)
+                # RigidBody(id=327683, position=(0.38059476017951965, 1.168117880821228, -0.10533234477043152), orientation=(-0.1181657463312149, 0.08150681853294373, 0.03866847604513168, -0.988887369632721), markers=[], mrk_ids=(), mrk_sizes=(), mrk_mean_error=-1.0027672160254186e+32, tracking_valid=False))
+                self.processRigidBodyObject({
+                    'id': rb.id,
+                    'position': rb.position,
+                    'orientation': rb.orientation}, batch)
+
+    # === ===
+    # BATCHES
+    # === ===
+
+    # returns self's batches dict (creates one if necessary)
+    def batches(self):
+        if hasattr(self, '_batches'):
+            return self._batches
+
+        # the batches dict will have the following layout, and will be used to
+        # delay event notification until an entire batch has has been completed
+        # <batch-identifier>: {
+        #   added_rigid_bodies: [<rigid_body>, <rigid_body>],
+        #   updated_rigid_bodies: [<rigid_body>, <rigid_body>],
+        #   added_skeletons: [<skeleton>, <skeleton>],
+        #   updated_skeletons: [<skeleton>, <skeleton>],
+        #   markers: [<marker>, <marker>]
+        # }
+        self._batches = {}
+
+        return self._batches
+
+    # returns the data for a specific batch (creates it if necessary)
+    def batch(self, batch_id):
+        if not batch_id in self.batches():
+            self.batches()[batch_id] = {
+                'added_rigid_bodies': set(),
+                'updated_rigid_bodies': set(),
+                'added_skeletons': set(),
+                'updated_skeletons': set(),
+                'markers': []
+            }
+
+        return self.batches()[batch_id]
+
+    # removes the data for a specific batch (if it exists)
+    def removeBatch(self, batch_id):
+        if batch_id in self.batches():
+            del self.batches()[batch_id]
+
+    def finishBatch(self, batch):
+        b = self.batch(batch)
+
+        if len(b['markers']) > 0:
+            self.markers = b['markers']
+            self.updateMarkersEvent(self)
+
+        for rb in b['added_rigid_bodies']:
+            self.newRigidBodyEvent(rb)
+        for rb in b['updated_rigid_bodies']:
+            self.updateRigidBodyEvent(rb)
+
+        # TODO: skeletons
+
+        self.updateEvent(self)
+        self.removeBatch(batch)

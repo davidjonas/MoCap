@@ -62,7 +62,7 @@ class NatnetReader:
         if data:
             packet = rx.unpack(data, version=self.version)
             if type(packet) is rx.SenderData:
-                setVersion(packet.natnet_version)
+                self.setVersion(packet.natnet_version)
             self._parse(packet)
 
     def start(self):
@@ -97,6 +97,9 @@ class NatnetReader:
             self.stop()
             self.start()
 
+    def setVersion(self, version):
+        self.version=version
+
     def _threaded_main(self):
         self.setup()
 
@@ -106,14 +109,16 @@ class NatnetReader:
         self.destroy()
 
     def _connect(self):
-        ColorTerminal().blue("Connecting to %s : %s" % (self.host, self.port))
+
 
         try:
             if self.host is None:
                 self.dsock = rx.mkdatasock() #Connecting to localhost
             elif self.multicast is not None and self.multicast is not '' and self.port is not None:
+                ColorTerminal().blue("Connecting to natnet on %s@%s (multicast: %s)" % (self.host, self.port, self.multicast))
                 self.dsock = rx.mkdatasock(ip_address=self.host, multicast_address=self.multicast, port=int(self.port)) #Connecting to multicast address
             else:
+                ColorTerminal().blue("Connecting to natnet on %s@%s" % (self.host, self.port))
                 self.dsock = rx.mkdatasock(ip_address=self.host, port=int(self.port)) # Connecting to IP address
 
             self.dsock.setblocking(0)
@@ -147,24 +152,20 @@ class NatnetReader:
         self.manager.finishBatch('NatnetReader')
 
     def _ingestSkeletonData(self, skData, batch=None):
-        # SKELETONS don't hold rigid bodies anymore (just creates duplicate data
-        # as all those rigid bodies are already in the main system)
-        # for skeletonObj in packet.skeletons:
-        #     skeleton = self.manager.getOrCreateSkeleton(skeletonObj.id)
-        #     for rbObj in skeletonObj.rigid_bodies:
-        #         rb = RigidBody(obj=rbObj)
-        #         skeleton.addOrUpdateRigidbody(rb)
+        # print('_ingestSkeletonData: ', skData)
 
         for skeletonObj in skData:
             # get rigid body IDs for current skeleton
             rigidBodyIds = map(lambda rb: rb.id, skeletonObj.rigid_bodies)
             # ingest (create or update) skeleton
-            self.manager.processSkeletonObject({"id": skeletonObj.id, "rigid_body_ids": rigidBodyIds})
+            self.manager.processSkeletonObject({'id': skeletonObj.id, 'rigid_body_ids': rigidBodyIds, 'rigid_bodies': skeletonObj.rigid_bodies})
             # ingest skeleton's rigid bodies, only when enabled (might contain the same rigid bodies as packet's root level)
-            if self.ingestSkeletonRigidBodies:
-                self._ingestRigidBodyData(self.skeletonObj.rigid_bodies, batch)
+            if hasattr(skeletonObj, 'rigid_bodies') and self.ingestSkeletonRigidBodies:
+                self._ingestRigidBodyData(skeletonObj.rigid_bodies, batch)
 
     def _ingestRigidBodyData(self, rbData, batch=None):
+        # print('_ingestRigidBodyData: ', rbData)
         for rbObj in rbData:
             # ingest (create or update) rigid body
+            # print('_ingestRigidBodyData, single rb: ', rbObj)
             self.manager.processRigidBodyObject(rbObj, batch)

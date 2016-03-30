@@ -47,11 +47,27 @@ class RigidBody(object):
             "orientation": self.orientation
         }
 
-    def fromObject(self, obj):
-        if not 'keys' in dir(obj):
-            ColorTerminal().red('RigidBody.fromObject received non-dict object. Maybe you meant fromNatnetObject() instead.')
-            return
+    def toJSON(self):
+        json_obj = self.toObject()
+        return json.dumps(json_obj)
 
+    def fromObject(self, obj):
+        # print('RigidBody.fromObject, got:', obj)
+
+        # properties object
+        if not 'keys' in dir(obj):
+            # ColorTerminal().red('RigidBody.fromObject received non-dict object')
+            if hasattr(obj, 'id'):
+                self.id = obj.id
+            if hasattr(obj,'position'):
+                self.position = obj.position
+            if hasattr(obj, 'orientation'):
+                self.orientation = obj.orientation
+            if hasattr(obj, 'name'):
+                self.name = obj.name
+            return self
+
+        # dict
         if 'id' in obj.keys():
             self.id = obj["id"]
         if 'position' in obj.keys():
@@ -60,12 +76,6 @@ class RigidBody(object):
             self.orientation = obj["orientation"]
         if 'name' in obj.keys():
             self.name = obj["name"]
-
-    def fromNatnetObject(self, obj):
-        if obj is not None:
-            self.id = obj.id
-            self.position = obj.position
-            self.orientation = obj.orientation
 
     def toJSON(self):
         json_obj = self.toObject()

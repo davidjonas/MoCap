@@ -2,10 +2,10 @@
 # from mocap_interface.rigid_body import RigidBody
 
 class Skeleton(object):
-    def __init__(self, id, rigidbodies={}, name="unnamed"):
+    def __init__(self, id=None, rigidbodies={}, name="unnamed"):
         self.id = id
-        self.rigid_body_ids = set()
         self.name = name
+        self.rigidbodies=rigidbodies
 
     def fromObject(self, obj):
         if 'id' in obj:
@@ -18,15 +18,17 @@ class Skeleton(object):
         elif hasattr(obj, 'name'):
             self.name = obj.name
 
-        if 'rigid_body_ids' in obj:
-            self.rigid_body_ids = obj["rigid_body_ids"]
-        elif hasattr(obj, 'rigid_body_ids'):
-            self.rigid_body_ids = set(obj.rigid_body_ids)
+        # TODO; map into our RigidBody class instances?
+        if 'rigidbodies' in obj:
+            self.rigidbodies = obj['rigidbodies']
+        elif hasattr(obj, 'rigidbodies'):
+            self.rigidbodies = obj.rigidbodies
 
         return self
 
     def copy(self, skeleton):
-        self.rigid_body_ids = skeleton.rigid_body_ids
+        self.id = skeleton.id
+        self.rigidbodies = skeleton.rigidbodies
         self.name = skeleton.name
 
     def toString(self):
