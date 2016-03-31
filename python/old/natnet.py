@@ -17,7 +17,9 @@ import OSC
 # TODO: Add argument parser here
 port = 8080
 host = "localhost"
-send_address = '10.200.200.35', 8000
+#send_address = '127.0.0.1', 8080
+send_address = '192.168.1.10', 8080
+
 
 # initializing OSC basic client
 c = OSC.OSCClient()
@@ -35,7 +37,7 @@ def sendBone(rigidbody):
     }
     j = json.dumps(r)
     msg = OSC.OSCMessage()
-    msg.setAddress("/bone") # set OSC address
+    msg.setAddress("/rigidbody") # set OSC address
     msg.append(j) # int
     c.send(msg)
 
@@ -67,5 +69,5 @@ while True:
     packet = rx.unpack(data, version=version)
     if type(packet) is rx.SenderData:
         version = packet.natnet_version
-    for r in packet.skeletons[0].rigid_bodies:
+    for r in packet.rigid_bodies:
         sendBone(r)
