@@ -30,7 +30,7 @@ class GuiApp(tk.Frame):
 
         # subviews
         self.manager_view = ManagerView(parent=self)
-        self.natnet_reader = NatnetReader(manager=self.manager_view.manager, multicast=self.default_natnet_multicast_ip(), autoStart=False)
+        self.natnet_reader = NatnetReader(manager=self.manager_view.manager, multicast=self.default_natnet_multicast_ip(), threaded=True, autoStart=False)
         self.natnet_reader_view = NatnetReaderView(parent=self, natnet_reader=self.natnet_reader)
         self.osc_reader = OscReader(manager=self.manager_view.manager, autoStart=False)
         self.osc_reader_view = OscReaderView(osc_reader=self.osc_reader, parent=self)
@@ -44,8 +44,8 @@ class GuiApp(tk.Frame):
         self.update()
 
     def update(self):
-        if self.natnet_reader:
-            self.natnet_reader.update()
+        # if self.natnet_reader:
+        #     self.natnet_reader.update()
 
         if self.osc_reader:
             self.osc_reader.update()

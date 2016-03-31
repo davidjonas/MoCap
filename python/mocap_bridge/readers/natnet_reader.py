@@ -33,6 +33,9 @@ class NatnetReader:
         if autoStart:
             self.start()
 
+    def __del__(self):
+        self.destroy()
+
     def setup(self):
         self._connect()
 

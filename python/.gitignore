@@ -1,1 +1,3 @@
 *.pyc
+
+data/natnet_*.json
