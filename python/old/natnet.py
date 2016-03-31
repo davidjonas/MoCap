@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #Fancy console colors
 class bcolors:
     HEADER = '\033[95m'
