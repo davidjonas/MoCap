@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #Fancy console colors
 class bcolors:
     HEADER = '\033[95m'
@@ -17,19 +19,35 @@ import OSC
 # TODO: Add argument parser here
 port = 8080
 host = "localhost"
-#send_address = '127.0.0.1', 8080
-send_address = '192.168.1.10', 8080
 
+send_address = '127.0.0.1', 8080
 
 # initializing OSC basic client
-c = OSC.OSCClient()
-c.connect( send_address ) # set the address for all following messages
+oscConn = None
 
 print bcolors.OKGREEN + "communications established." + bcolors.ENDC
 print bcolors.OKGREEN + "Enjoy..." + bcolors.ENDC
 
 
+def getOscConnection():
+    try:
+        c = OSC.OSCClient()
+        c.connect( send_address ) # set the address for all following messages
+        return c
+    except OSC.OSCClientError as e:
+        # print bcolors.WARNING + e.message + bcolors.ENDC
+        pass
+
+    return None
+
 def sendBone(rigidbody):
+    global oscConn
+    if oscConn == None:
+        oscConn = getOscConnection()
+        if oscConn == None:
+            print bcolors.WARNING + "No OSC connection" + bcolors.ENDC
+            return
+
     r = {
         'id':rigidbody.id,
         'position':rigidbody.position,
@@ -39,7 +57,11 @@ def sendBone(rigidbody):
     msg = OSC.OSCMessage()
     msg.setAddress("/rigidbody") # set OSC address
     msg.append(j) # int
-    c.send(msg)
+    try:
+        oscConn.send(msg)
+    except OSC.OSCClientError as err:
+        # print bcolors.WARNING + "Can't send OSC message:" + err.message + bcolors.ENDC
+        pass
 
 # =========
 
@@ -52,15 +74,23 @@ except ImportException:
 
 
 #TODO:Use the argument parser here as well. Encapsulate in NATNET class.
-if len(sys.argv) == 4:
-    print bcolors.OKGREEN + "connecting to IP address %s / multicast address %s with port %s" % (sys.argv[1], sys.argv[2], sys.argv[3]) + bcolors.ENDC
-    dsock = rx.mkdatasock(ip_address=sys.argv[1], multicast_address=sys.argv[2], port=int(sys.argv[3]))
-elif len(sys.argv) == 3:
-    print bcolors.OKGREEN + "connecting to IP address %s with port %s" % (sys.argv[1], sys.argv[2]) + bcolors.ENDC
-    dsock = rx.mkdatasock(ip_address=sys.argv[1], port=int(sys.argv[2]))
-else:
-    print bcolors.OKGREEN + "connecting to localhost" + bcolors.ENDC
-    dsock = rx.mkdatasock()
+
+natnet_host = '0.0.0.0' if len(sys.argv) < 2 else sys.argv[1]
+natnet_multicast = '239.255.42.99' if len(sys.argv) < 3 else sys.argv[2]
+natnet_port = 1511 if len(sys.argv) < 4 else int(sys.argv[3])
+
+print bcolors.OKGREEN + "connecting to IP address %s / multicast address %s with port %s" % (natnet_host, natnet_multicast, str(natnet_port)) + bcolors.ENDC
+dsock = rx.mkdatasock(ip_address=natnet_host, multicast_address=natnet_multicast, port=natnet_port)
+
+# if len(sys.argv) == 4:
+#     print bcolors.OKGREEN + "connecting to IP address %s / multicast address %s with port %s" % (sys.argv[1], sys.argv[2], sys.argv[3]) + bcolors.ENDC
+#     dsock = rx.mkdatasock(ip_address=sys.argv[1], multicast_address=sys.argv[2], port=int(sys.argv[3]))
+# elif len(sys.argv) == 3:
+#     print bcolors.OKGREEN + "connecting to IP address %s with port %s" % (sys.argv[1], sys.argv[2]) + bcolors.ENDC
+#     dsock = rx.mkdatasock(ip_address=sys.argv[1], port=int(sys.argv[2]))
+# else:
+#     print bcolors.OKGREEN + "connecting to localhost" + bcolors.ENDC
+#     dsock = rx.mkdatasock()
 
 version = (2, 7, 0, 0)  # NatNet version to use
 
