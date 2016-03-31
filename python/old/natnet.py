@@ -23,14 +23,31 @@ host = "localhost"
 send_address = '127.0.0.1', 8080
 
 # initializing OSC basic client
-c = OSC.OSCClient()
-c.connect( send_address ) # set the address for all following messages
+oscConn = None
 
 print bcolors.OKGREEN + "communications established." + bcolors.ENDC
 print bcolors.OKGREEN + "Enjoy..." + bcolors.ENDC
 
 
+def getOscConnection():
+    try:
+        c = OSC.OSCClient()
+        c.connect( send_address ) # set the address for all following messages
+        return c
+    except OSC.OSCClientError as e:
+        # print bcolors.WARNING + e.message + bcolors.ENDC
+        pass
+
+    return None
+
 def sendBone(rigidbody):
+    global oscConn
+    if oscConn == None:
+        oscConn = getOscConnection()
+        if oscConn == None:
+            print bcolors.WARNING + "No OSC connection" + bcolors.ENDC
+            return
+
     r = {
         'id':rigidbody.id,
         'position':rigidbody.position,
@@ -40,7 +57,11 @@ def sendBone(rigidbody):
     msg = OSC.OSCMessage()
     msg.setAddress("/rigidbody") # set OSC address
     msg.append(j) # int
-    c.send(msg)
+    try:
+        oscConn.send(msg)
+    except OSC.OSCClientError as err:
+        # print bcolors.WARNING + "Can't send OSC message:" + err.message + bcolors.ENDC
+        pass
 
 # =========
 
@@ -56,7 +77,7 @@ except ImportException:
 
 natnet_host = '0.0.0.0' if len(sys.argv) < 2 else sys.argv[1]
 natnet_multicast = '239.255.42.99' if len(sys.argv) < 3 else sys.argv[2]
-natnet_port = 8080 if len(sys.argv) < 4 else int(sys.argv[3])
+natnet_port = 1511 if len(sys.argv) < 4 else int(sys.argv[3])
 
 print bcolors.OKGREEN + "connecting to IP address %s / multicast address %s with port %s" % (natnet_host, natnet_multicast, str(natnet_port)) + bcolors.ENDC
 dsock = rx.mkdatasock(ip_address=natnet_host, multicast_address=natnet_multicast, port=natnet_port)
