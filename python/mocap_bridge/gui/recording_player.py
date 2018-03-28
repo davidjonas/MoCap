@@ -5,7 +5,7 @@ from mocap_bridge.readers.json_reader import JsonReader
 from mocap_bridge.writers.osc_writer import OscWriter
 
 class RecordingPlayer:
-    def __init__(self, json_file='data/sampleRecording2.json', osc_host='127.0.0.1', osc_port=8080, manager=None, autoStart=False):
+    def __init__(self, json_file='../data/sampleRecording2.json', osc_host='127.0.0.1', osc_port=8080, manager=None, autoStart=False):
         # config
         self.json_file = json_file
         self.osc_host = osc_host
@@ -84,10 +84,14 @@ class RecordingPlayerView:
         self.button.grid(column=0, row=3)
         self.status_label.grid(column=1, row=3)
 
-    def update(self):
         self.file_input.insert(0, self.player.json_file)
         self.osc_host_input.insert(0,self.player.osc_host)
         self.osc_port_input.insert(0,self.player.osc_port)
+
+    def update(self):
+        #self.file_input.insert(0, self.player.json_file)
+        #self.osc_host_input.insert(0,self.player.osc_host)
+        #self.osc_port_input.insert(0,self.player.osc_port)
 
         self.tk.update()
         if self.player.status() == 'playing':
