@@ -77,7 +77,8 @@ class JsonWriter:
         if path and path != '':
             self.path = path
         else:
-            self.path = "data/natnet_"+datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".json"
+            #self.path = "data/natnet_"+datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".json"
+            self.path = "../data/natnet_"+datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".json"
 
     def _frameJson(self, timestamp):
         data = {
