@@ -18,7 +18,7 @@ class NatnetReader:
         self.readMarkers = readMarkers
         self.ingestSkeletonRigidBodies = ingestSkeletonRigidBodies
 
-        self.version = (2, 7, 0, 0)
+        self.version = (2, 9, 0, 0)
         self.connected = False
         self.dsock = None
         self.connection_status = None
