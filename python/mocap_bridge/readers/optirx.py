@@ -193,7 +193,7 @@ def _unpack_cstring(data, maxstrlen):
     (strbuf,) = struct.unpack("%ds" % databuflen, databuf)
     s = strbuf.split(b"\0", 1)[0]
     sz = len(s) + 1
-    return s, data[sz:]
+    return s.decode("utf-8"), data[sz:]
 
 
 def _unpack_sender(payload, size):
