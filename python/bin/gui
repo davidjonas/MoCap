@@ -12,7 +12,12 @@ from mocap_bridge.gui.natnet_reader_view import NatnetReaderView
 from mocap_bridge.writers.json_writer import JsonWriter
 from mocap_bridge.gui.json_writer_view import JsonWriterView
 
-import Tkinter as tk
+import sys
+if sys.version_info[0] >= 3:
+    import tkinter as tk
+else:
+    import Tkinter as tk
+
 import os
 
 class GuiApp(tk.Frame):

@@ -1,7 +1,11 @@
 from mocap_bridge.utils.color_terminal import ColorTerminal
 from mocap_bridge.interface.manager import Manager
 
-import Tkinter as tk
+import sys
+if sys.version_info[0] >= 3:
+    import tkinter as tk
+else:
+    import Tkinter as tk
 
 class ManagerView:
     def __init__(self, manager=None, parent=None):
