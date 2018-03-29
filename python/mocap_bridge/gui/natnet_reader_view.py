@@ -1,6 +1,11 @@
 from mocap_bridge.readers.natnet_reader import NatnetReader
 
-import Tkinter as tk
+import sys
+if sys.version_info[0] >= 3:
+    import tkinter as tk
+else:
+    import Tkinter as tk
+    
 
 class NatnetReaderView:
     def __init__(self, natnet_reader=None, parent=None, manager=None):

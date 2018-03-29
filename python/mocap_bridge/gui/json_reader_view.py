@@ -2,8 +2,13 @@ from mocap_bridge.utils.color_terminal import ColorTerminal
 from mocap_bridge.readers.json_reader import JsonReader
 from mocap_bridge.utils.event import Event
 
-import Tkinter
-import tkFileDialog
+import sys
+if sys.version_info[0] >= 3:
+    import tkinter as tk
+else:
+    import Tkinter as tk
+    import tkFileDialog
+
 
 class JsonReaderView:
     def __init__(self, json_reader, parent=None):
@@ -13,13 +18,13 @@ class JsonReaderView:
 
     def setup(self):
         # create gui-elements
-        self.frame = Tkinter.LabelFrame(self.parent, text='Playback', padx=10, pady=10)
+        self.frame = tk.LabelFrame(self.parent, text='Playback', padx=10, pady=10)
         self.frame.grid()
 
-        self.loadJsonButton = Tkinter.Button(self.frame, text='Load other JSON File', command=self.onLoadJsonFileButton)
-        self.file_label = Tkinter.Label(self.frame, text=self.json_reader.path)
-        self.startstop_button = Tkinter.Button(self.frame, text='Play', command=self.onStartStopButtonClicked)
-        self.time_label = Tkinter.Label(self.frame, text="time: 0s")
+        self.loadJsonButton = tk.Button(self.frame, text='Load other JSON File', command=self.onLoadJsonFileButton)
+        self.file_label = tk.Label(self.frame, text=self.json_reader.path)
+        self.startstop_button = tk.Button(self.frame, text='Play', command=self.onStartStopButtonClicked)
+        self.time_label = tk.Label(self.frame, text="time: 0s")
 
         # position elements
         self.loadJsonButton.grid(column=0, row=0)

@@ -1,6 +1,11 @@
 from mocap_bridge.readers.osc_reader import OscReader
 
-import Tkinter as tk
+import sys
+if sys.version_info[0] >= 3:
+    import tkinter as tk
+else:
+    import Tkinter as tk
+    
 
 class OscReaderView:
     def __init__(self, osc_reader=None, parent=None):

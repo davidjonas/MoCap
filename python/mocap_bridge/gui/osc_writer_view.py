@@ -1,6 +1,11 @@
 from mocap_bridge.writers.osc_writer import OscWriter
 
-import Tkinter as tk
+import sys
+if sys.version_info[0] >= 3:
+    import tkinter as tk
+else:
+    import Tkinter as tk
+    import tkFileDialog
 
 class OscWriterView:
     def __init__(self, osc_writer=None, parent=None):

@@ -1,10 +1,16 @@
 from mocap_bridge.utils.color_terminal import ColorTerminal
 from mocap_bridge.utils.event import Event
 
+import sys
+
 try:
-    import OSC
+    if sys.version_info[0] >= 3:
+        from mocap_bridge.writers.python3 import OSC
+    else:
+        from mocap_bridge.writers.python2 import OSC
 except ImportError:
     ColorTerminal().fail("Error importing OSC library for OscWriter, please install pyOSC by running: sudo pip install pyOSC")
+
 
 class OscWriter:
     def __init__(self, host="127.0.0.1", port=8080, manager=None, autoStart=True):

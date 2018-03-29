@@ -8,7 +8,7 @@ from mocap_bridge.writers.console_writer import ConsoleWriter
 import sys
 
 # config
-json_file = "data/sampleRecording2.json" if len(sys.argv) < 2 else sys.argv[1]
+json_file = "../data/sampleRecording2.json" if len(sys.argv) < 2 else sys.argv[1]
 
 # initialize all departments
 manager = Manager()

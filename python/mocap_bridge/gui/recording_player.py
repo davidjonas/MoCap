@@ -51,7 +51,13 @@ class RecordingPlayer:
             return 'playing'
         return 'stopped'
 
-import Tkinter
+import sys
+if sys.version_info[0] >= 3:
+    print("python3")
+    import tkinter as tk
+else:
+    print("python2")
+    import Tkinter as tk
 
 class RecordingPlayerView:
     def __init__(self, player=None):
@@ -63,17 +69,17 @@ class RecordingPlayerView:
 
     def setup(self):
         # create gui-elements
-        self.tk = Tkinter.Tk()
+        self.tk = tk.Tk()
         self.tk.title('Play MoCap recording')
         # self.tk.geometry('1000x330')
-        self.file_label = Tkinter.Label(self.tk, text="JSON File")
-        self.file_input = Tkinter.Entry(self.tk, width=20)
-        self.osc_host_label = Tkinter.Label(self.tk, text="OSC Host")
-        self.osc_host_input = Tkinter.Entry(self.tk, width=20)
-        self.osc_port_label = Tkinter.Label(self.tk, text="OSC Port")
-        self.osc_port_input = Tkinter.Entry(self.tk, width=20, text='8080')
-        self.button = Tkinter.Button(self.tk, text="Start", command = self.onButtonClicked)
-        self.status_label = Tkinter.Label(self.tk, text="")
+        self.file_label = tk.Label(self.tk, text="JSON File")
+        self.file_input = tk.Entry(self.tk, width=20)
+        self.osc_host_label = tk.Label(self.tk, text="OSC Host")
+        self.osc_host_input = tk.Entry(self.tk, width=20)
+        self.osc_port_label = tk.Label(self.tk, text="OSC Port")
+        self.osc_port_input = tk.Entry(self.tk, width=20, text='8080')
+        self.button = tk.Button(self.tk, text="Start", command = self.onButtonClicked)
+        self.status_label = tk.Label(self.tk, text="")
         # position gui-elements
         self.file_label.grid(column=0, row=0)
         self.file_input.grid(column=1, row=0)
@@ -151,7 +157,7 @@ if False: # all following is old code for inspiration
                     self.natnet_link.configure(bg="green")
                     self.natnet_connect_button.configure(text="disconnect")
                 except:
-                    print bcolors.FAIL + "Error while connecting to NatNet" + bcolors.ENDC
+                    print(bcolors.FAIL + "Error while connecting to NatNet" + bcolors.ENDC)
                     self.natnet = None
                     self.natnet_link.configure(bg="red")
 
@@ -178,7 +184,7 @@ if False: # all following is old code for inspiration
                     self.osc_link.configure(bg="green")
                     self.osc_connect_button.configure(text="disconnect")
                 except:
-                    print bcolors.FAIL + "Error connecting to OSC server" + bcolors.ENDC
+                    print(bcolors.FAIL + "Error connecting to OSC server" + bcolors.ENDC)
                     self.osc = None
                     self.osc_link.configure(bg="red")
 

@@ -1,6 +1,11 @@
 from mocap_bridge.writers.json_writer import JsonWriter
 
-import Tkinter as tk
+import sys
+if sys.version_info[0] >= 3:
+    import tkinter as tk
+else:
+    import Tkinter as tk
+    
 
 from subprocess import call
 
