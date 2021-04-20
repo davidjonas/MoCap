@@ -193,7 +193,7 @@ def _unpack_cstring(data, maxstrlen):
     (strbuf,) = struct.unpack("%ds" % databuflen, databuf)
     s = strbuf.split(b"\0", 1)[0]
     sz = len(s) + 1
-    return s, data[sz:]
+    return s.decode("utf-8"), data[sz:]
 
 
 def _unpack_sender(payload, size):
@@ -287,6 +287,17 @@ def _unpack_labeled_markers(data, version):
                 None, None, None))
     return lmarkers, data
 
+def _unpack_force_plates(data, version):
+    if not _version_is_at_least(version, 2, 9): # PacketClient-2.9.cpp:859
+        return [], data
+    # not tested, this is just here to parse the packet format
+    (nplates,), data = _unpack_head("i", data)
+    force_plates = []
+
+    if nplates > 0:
+        raise NotImplementedError("Force plate data not supported.")
+
+    return force_plates, data
 
 def _unpack_frameofdata(data, version):
     (frameno, nsets), data = _unpack_head("ii", data)
@@ -301,6 +312,7 @@ def _unpack_frameofdata(data, version):
     bodies, data = _unpack_rigid_bodies(data, version)
     skels, data = _unpack_skeletons(data, version)
     lmarkers, data = _unpack_labeled_markers(data, version)
+    forceplates, data = _unpack_force_plates(data, version)
     if _version_is_at_least(version, 2, 7):
         # In version 2.7, the timestamp was changed from float to double
         (latency, timecode, timecode_sub, timestamp, params), data = _unpack_head("!fIIdh", data)
@@ -439,7 +451,7 @@ def mkdatasock(ip_address=None, multicast_address=MULTICAST_ADDRESS, port=PORT_D
     ip_address = gethostip() if not ip_address else ip_address
     datasock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
     datasock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    datasock.bind((ip_address, port))
+    datasock.bind(('', port))
     # join a multicast group
     mreq = struct.pack("=4sl", socket.inet_aton(multicast_address), socket.INADDR_ANY)
     datasock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)

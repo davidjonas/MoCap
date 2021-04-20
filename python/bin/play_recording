@@ -8,7 +8,7 @@ from mocap_bridge.writers.osc_writer import OscWriter
 import sys
 
 # config
-json_file = "data/sampleRecording3.json" if len(sys.argv) < 2 else sys.argv[1]
+json_file = "../data/sampleRecording3.json" if len(sys.argv) < 2 else sys.argv[1]
 osc_host = '127.0.0.1' if len(sys.argv) < 3 else sys.argv[2]
 osc_port = 8080 if len(sys.argv) < 4 else sys.argv[3]
 
